@@ -25,7 +25,7 @@ const Filters = ({
 };
 
 export default function BillsList() {
-  const { onSubmit , isModalOpen , setIsModalOpen} = useContext(BillsContext)
+  const { onSubmit, isModalOpen, setIsModalOpen } = useContext(BillsContext);
   return (
     <div className="w-full h-full p-1 flex flex-col">
       {/* Filters */}
@@ -44,7 +44,7 @@ export default function BillsList() {
         onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
         showCloseButton={false}
         formProps={{
-            onSubmit : onSubmit
+          onSubmit: onSubmit,
         }}
       >
         <BillForm />

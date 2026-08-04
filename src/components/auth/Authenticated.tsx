@@ -1,8 +1,9 @@
 import AuthProvider from "@c/context/AuthProvider";
+import ConfirmModalProvider from "@c/context/ConfirmModalProvider";
 import useAuthCheck from "@c/hooks/auth/useAuthCheck";
 import AuthLayout from "@c/pages/auth/layout";
 import { useEffect } from "react";
-import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 
 export default function Authenticated() {
   const authCheck = useAuthCheck();
@@ -22,7 +23,9 @@ export default function Authenticated() {
   return (
     <AuthLayout>
       <AuthProvider>
-        <Outlet />
+        <ConfirmModalProvider>
+          <Outlet />
+        </ConfirmModalProvider>
       </AuthProvider>
     </AuthLayout>
   );

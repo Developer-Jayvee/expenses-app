@@ -24,7 +24,7 @@ export default function AuthProvider({
         user: userInfo,
       }}
     >
-      {children}
+      <>{children}</>
     </AuthContext.Provider>
   );
 }

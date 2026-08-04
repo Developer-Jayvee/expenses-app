@@ -21,11 +21,10 @@ export interface PostBillResponseI {
 
 export interface BillCardI extends BillDataI {}
 
-
 export const billSchema = z.object({
-  name : z.string(),
-  amount : z.number(),
-  billing_date : z.string(),
-  end_date : z.string(),
-  status : z.enum(['active','inactive','completed'])
+  name: z.string(),
+  amount: z.number(),
+  billing_date: z.string(),
+  end_date: z.string(),
+  status: z.enum(["active", "inactive", "completed"]),
 });

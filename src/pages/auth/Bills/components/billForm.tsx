@@ -5,8 +5,8 @@ import { StatusOptions } from "@c/data/options";
 import { useContext } from "react";
 
 export default function BillForm() {
-  const { register, control } = useContext(BillsContext)
-  if(!register) return null;
+  const { register, control } = useContext(BillsContext);
+  if (!register) return null;
   return (
     <div className="p-4">
       <h3 className="font-bold text-2xl">Bills</h3>
@@ -19,12 +19,17 @@ export default function BillForm() {
             name: "name",
             placeholder: "e.g Rent",
             type: "text",
-            props: {...register?.("name")}
+            props: { ...register?.("name") },
           }}
         />
         <FormControl
           label={{ name: "Amount(Pesos)" }}
-          input={{ name: "amount", placeholder: "0.00", type: "number" , props: {...register?.("amount")}}}
+          input={{
+            name: "amount",
+            placeholder: "0.00",
+            type: "number",
+            props: { ...register?.("amount") },
+          }}
         />
         <div className="grid grid-cols-2 gap-x-4">
           <FormControl
@@ -33,7 +38,7 @@ export default function BillForm() {
               name: "billing_date",
               placeholder: "Billing Date",
               type: "date",
-              props : {...register?.("billing_date")}
+              props: { ...register?.("billing_date") },
             }}
           />
           <FormControl
@@ -42,9 +47,11 @@ export default function BillForm() {
               name: "end_date",
               placeholder: "End Date",
               type: "date",
-              props: {...register("end_date",{
-                valueAsDate: true
-              })}
+              props: {
+                ...register("end_date", {
+                  valueAsDate: true,
+                }),
+              },
             }}
           />
         </div>
@@ -56,7 +63,7 @@ export default function BillForm() {
           name="status"
           input={{
             placeholder: "Select Status",
-            props:{...register?.("status")}
+            props: { ...register?.("status") },
           }}
           options={StatusOptions}
         />

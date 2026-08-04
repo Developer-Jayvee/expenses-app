@@ -2,13 +2,11 @@ import type { PostBillDataI } from "@c/types/billsTypes";
 import { date_formatter } from "@c/utils/utilities.util";
 
 interface BillCardI {
-  item : Partial<PostBillDataI>;
-  onDelete: (id : string) => void;
-  onUpdate : (id : string) => void;
+  item: Partial<PostBillDataI>;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string) => void;
 }
-export default function BillCard({
-  item, onDelete, onUpdate
-}: BillCardI) {
+export default function BillCard({ item, onDelete, onUpdate }: BillCardI) {
   const date = date_formatter((item?.billing_date ?? new Date()) as Date);
   return (
     <div className="bills-card p-4   bg-white rounded-2xl font-inter shadow-md">
@@ -36,8 +34,18 @@ export default function BillCard({
           </div>
         </div>
         <div className="flex gap-1 items-center">
-          <button className="bg-gray-300" onClick={() => item?.id ? onUpdate(item?.id) : undefined}>Edit</button>
-          <button className="bg-gray-300" onClick={() => item?.id ? onDelete(item?.id) : undefined}>Delete</button>
+          <button
+            className="bg-gray-300"
+            onClick={() => (item?.id ? onUpdate(item?.id) : undefined)}
+          >
+            Edit
+          </button>
+          <button
+            className="bg-gray-300"
+            onClick={() => (item?.id ? onDelete(item?.id) : undefined)}
+          >
+            Delete
+          </button>
         </div>
       </div>
     </div>
