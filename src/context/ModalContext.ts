@@ -1,5 +1,5 @@
 import type { ModalDetailsI } from "@c/hooks/useConfirmModal";
-import { createContext } from "react";
+import { createContext, useContext } from "react";
 
 export interface ConfirmModalContextI {
   onOpen: () => void;
@@ -13,3 +13,14 @@ export const ConfirmModalContext = createContext<ConfirmModalContextI>({
   confirmModalConfig: () => {},
   handleConfirm: (callback: () => void) => callback(),
 });
+
+export class ModalContextService {
+  public static confirmModal() {
+    const context = useContext(ConfirmModalContext);
+    if (!context) {
+      alert("The component is outside the context");
+      throw new Error("The component is outside the context");
+    }
+    return context;
+  }
+}

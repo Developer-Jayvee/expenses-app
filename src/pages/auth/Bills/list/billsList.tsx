@@ -1,4 +1,4 @@
-import { useContext, type Dispatch, type SetStateAction } from "react";
+import { useContext, useRef, type Dispatch, type SetStateAction } from "react";
 import { BiPlus } from "react-icons/bi";
 import { DefaultModal } from "@c/components/modals/DefaultModal";
 import BillTable from "../components/bill-table";
@@ -26,6 +26,7 @@ const Filters = ({
 
 export default function BillsList() {
   const { onSubmit, isModalOpen, setIsModalOpen } = useContext(BillsContext);
+  const formRef = useRef<HTMLFormElement>(null);
   return (
     <div className="w-full h-full p-1 flex flex-col">
       {/* Filters */}
@@ -46,6 +47,7 @@ export default function BillsList() {
         formProps={{
           onSubmit: onSubmit,
         }}
+        formRef={formRef}
       >
         <BillForm />
       </DefaultModal>

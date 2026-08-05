@@ -5,9 +5,17 @@ import {
   useState,
   type Dispatch,
   type FormHTMLAttributes,
+  type RefObject,
   type SetStateAction,
 } from "react";
 
+interface ButtonEventsI<R = void> {
+  submitBtn: {
+    type: "button" | "submit" | "reset";
+    text: "Submit";
+    handler: () => R;
+  };
+}
 interface DefaultModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
@@ -15,6 +23,8 @@ interface DefaultModalProps {
   children: React.ReactNode;
   showCloseButton?: boolean;
   formProps: FormHTMLAttributes<HTMLFormElement>;
+  formRef: RefObject<HTMLFormElement | null>;
+  buttonEvents?: ButtonEventsI;
 }
 export function DefaultModal({
   isOpen,
@@ -23,6 +33,8 @@ export function DefaultModal({
   children,
   showCloseButton = true,
   formProps = {},
+  formRef,
+  buttonEvents,
 }: DefaultModalProps) {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
@@ -30,7 +42,7 @@ export function DefaultModal({
   return (
     <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg" showCloseButton={showCloseButton}>
-        <form {...formProps}>
+        <form ref={formRef} {...formProps}>
           {children}
           <div className="grid grid-cols-2 gap-2 mt-1">
             <Button
@@ -42,9 +54,17 @@ export function DefaultModal({
             >
               Cancel
             </Button>
-            <Button variant="primary" type="submit">
+            <Button
+              variant="primary"
+              type={`${buttonEvents?.submitBtn?.type ?? "submit"}`}
+              onClick={() =>
+                buttonEvents?.submitBtn.handler
+                  ? buttonEvents?.submitBtn.handler()
+                  : undefined
+              }
+            >
               {" "}
-              Submit
+              {buttonEvents?.submitBtn.text ?? "Submit"}
             </Button>
           </div>
         </form>

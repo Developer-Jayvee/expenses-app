@@ -1,12 +1,12 @@
 import { BillsContext } from "@c/context/BillsProvider";
 import { useContext, useEffect, useState } from "react";
 import BillCard from "./bill-card";
-import { ConfirmModalContext } from "@c/context/ModalContext";
+import { ModalContextService } from "@c/context/ModalContext";
 
 export default function BillTable() {
   const { bills, onDelete, onOpenUpdate } = useContext(BillsContext);
   const { onOpen, confirmModalConfig, handleConfirm } =
-    useContext(ConfirmModalContext);
+    ModalContextService.confirmModal();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const handleDelete = (id: string) => {
     onOpen();

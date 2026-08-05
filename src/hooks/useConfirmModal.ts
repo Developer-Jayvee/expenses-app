@@ -17,7 +17,7 @@ export default function useConfirmModal() {
     setIsOpen(true);
   };
   const onClose = () => {
-    resetModal();
+    setIsOpen(false);
   };
 
   const handleConfirm = (callback: () => void) => {
@@ -33,13 +33,6 @@ export default function useConfirmModal() {
 
   const handleModalDetails = ({ title, description }: ModalDetailsI) => {
     setModalDetails({ title, description });
-  };
-  const resetModal = () => {
-    setModalDetails({
-      title: "",
-      description: undefined,
-    });
-    setIsOpen(false);
   };
 
   return {
