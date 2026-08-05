@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { authCheck } from "../api/auth/login-api";
+import { authCheck } from "../api/auth/auth-api";
 
 export default function useAuthCheck() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);

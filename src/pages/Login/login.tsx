@@ -1,4 +1,4 @@
-import useLoginHook from "@/hooks/useLoginHook";
+import useAuthHook from "@c/hooks/useAuthHook";
 import InputField from "./components/InputField";
 import type { PostLogin } from "@c/types/login-types";
 
@@ -81,7 +81,7 @@ const LoginForm = ({
   );
 };
 export default function LoginPage() {
-  const { register, handleSubmit, onSubmit } = useLoginHook();
+  const { register, handleSubmit, onSubmit } = useAuthHook();
   return (
     <div className="w-full h-screen  flex justify-center items-center">
       <div className="bg-white w-120 max-w-200 h-auto rounded-2xl p-4 px-10 font-inter shadow-md">

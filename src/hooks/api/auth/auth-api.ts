@@ -1,5 +1,5 @@
 import http from "@c/configs/axiosHttp";
-import LoginService from "@c/services/loginService";
+import  AuthService from "@c/services/AuthService";
 import type {
   PostLoginResponse,
   PostLogin,
@@ -13,14 +13,13 @@ export const loginAPI = async ({
   email,
   password,
 }: PostLogin): Promise<PostLoginResponse> => {
-  const loginService = LoginService({ user: null });
   const response = await http.post<PostLoginResponse>(`login`, {
     ...{ email, password },
   });
   const user = response?.data?.user as UserInterface;
 
   if (response.data.user) {
-    loginService.setUserDetails(user);
+    AuthService.setUserDetails(user);
   }
   return response?.data;
 };
@@ -32,3 +31,12 @@ export const getCookies = async () => {
 export const authCheck = async () => {
   return await http.get("auth-check");
 };
+
+export const logoutAPI  = async () => {
+  const response = await http.post("logout");
+  if(!response?.data) {
+    return null;
+  }
+  AuthService.logoutUser();
+  return response?.data
+}

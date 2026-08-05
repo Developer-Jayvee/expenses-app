@@ -2,6 +2,9 @@ import { IoGridOutline } from "react-icons/io5";
 import { NavLink } from "react-router";
 import { MdNewspaper } from "react-icons/md";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
+import DropMenu from "@c/components/ui/DropMenu";
+import useAuthHook from "@c/hooks/useAuthHook";
+import { ModalContextService } from "@c/context/ModalContext";
 
 const LinkComponent = ({
   children,
@@ -20,6 +23,15 @@ const LinkComponent = ({
   );
 };
 export default function SideBar() {
+  const { onLogout } = useAuthHook()
+  const { onOpen , handleConfirm, confirmModalConfig } = ModalContextService.confirmModal();
+  const confirmLogout = () => {
+    onOpen();
+    confirmModalConfig({
+      title:"Are you sure you want to logout?"
+    })
+    handleConfirm(() => onLogout());
+  }
   return (
     <aside className="fixed top-0 bottom-0 w-67.5 text-white">
       <div className="h-full w-full flex flex-col p-6 gap-10">
@@ -55,9 +67,18 @@ export default function SideBar() {
                 <small className="">jayvee@gmail.com</small>
               </div>
               <div>
-                <button>
-                  <HiOutlineDotsHorizontal />
-                </button>
+                <DropMenu 
+                  options={[
+                    {
+                      items:[ {
+                        label:"Logout",
+                        event: () => confirmLogout()
+                      }]
+                    }
+                  ]}
+                >
+                    <HiOutlineDotsHorizontal />
+                </DropMenu>
               </div>
             </div>
           </div>

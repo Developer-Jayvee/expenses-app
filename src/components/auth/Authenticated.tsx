@@ -21,12 +21,12 @@ export default function Authenticated() {
   }
 
   return (
-    <AuthLayout>
-      <AuthProvider>
-        <ConfirmModalProvider>
+    <ConfirmModalProvider>
+      <AuthLayout>
+        <AuthProvider>
           <Outlet />
-        </ConfirmModalProvider>
-      </AuthProvider>
-    </AuthLayout>
+        </AuthProvider>
+      </AuthLayout>
+    </ConfirmModalProvider>
   );
 }

@@ -1,4 +1,4 @@
-import LoginService from "@c/services/loginService";
+import AuthService from "@c/services/AuthService";
 import type { UserInterface } from "@c/types/login-types";
 import { createContext } from "react";
 
@@ -14,9 +14,8 @@ export default function AuthProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const auth = LoginService({ user: null });
 
-  const userInfo = auth.getUserDetails();
+  const userInfo = AuthService.getUserData();
 
   return (
     <AuthContext.Provider
