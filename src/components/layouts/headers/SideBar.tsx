@@ -5,6 +5,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import DropMenu from "@c/components/ui/DropMenu";
 import useAuthHook from "@c/hooks/useAuthHook";
 import { ModalContextService } from "@c/context/ModalContext";
+import AuthService from "@c/services/AuthService";
 
 const LinkComponent = ({
   children,
@@ -22,16 +23,19 @@ const LinkComponent = ({
     </NavLink>
   );
 };
+
 export default function SideBar() {
-  const { onLogout } = useAuthHook()
-  const { onOpen , handleConfirm, confirmModalConfig } = ModalContextService.confirmModal();
+  const { onLogout } = useAuthHook();
+  const { onOpen, handleConfirm, confirmModalConfig } =
+    ModalContextService.confirmModal();
   const confirmLogout = () => {
     onOpen();
     confirmModalConfig({
-      title:"Are you sure you want to logout?"
-    })
+      title: "Are you sure you want to logout?",
+    });
     handleConfirm(() => onLogout());
-  }
+  };
+  const user = AuthService.getUserData();
   return (
     <aside className="fixed top-0 bottom-0 w-67.5 text-white">
       <div className="h-full w-full flex flex-col p-6 gap-10">
@@ -57,27 +61,30 @@ export default function SideBar() {
         <div className="border-0 border-t">
           <div className="flex gap-3 mt-3">
             <div>
-              <div className="rounded-full font-bold profile-icon-bg w-10 h-10 text-sm flex items-center justify-center">
-                <p>JV</p>
-              </div>
+              <img
+                src="https://api.dicebear.com/10.x/bottts/png"
+                className="rounded-full font-bold profile-icon-bg w-10 h-10 text-sm flex items-center justify-center"
+              />
             </div>
             <div className="flex justify-between w-full items-center">
               <div>
-                <p className="-mb-2.5 text-sm font-bold">Jayvee Hidlao</p>
-                <small className="">jayvee@gmail.com</small>
+                <p className="-mb-2.5 text-sm font-bold">{user?.last_name}</p>
+                <small className="">{user?.email}</small>
               </div>
               <div>
-                <DropMenu 
+                <DropMenu
                   options={[
                     {
-                      items:[ {
-                        label:"Logout",
-                        event: () => confirmLogout()
-                      }]
-                    }
+                      items: [
+                        {
+                          label: "Logout",
+                          event: () => confirmLogout(),
+                        },
+                      ],
+                    },
                   ]}
                 >
-                    <HiOutlineDotsHorizontal />
+                  <HiOutlineDotsHorizontal />
                 </DropMenu>
               </div>
             </div>
