@@ -2,12 +2,14 @@ import { BillsContext } from "@c/context/BillsProvider";
 import { useContext, useEffect, useState } from "react";
 import BillCard from "./bill-card";
 import { ModalContextService } from "@c/context/ModalContext";
+import { useNavigate } from "react-router";
 
 export default function BillTable() {
-  const { bills, onDelete, onOpenUpdate } = useContext(BillsContext);
+  const { bills, onDelete } = useContext(BillsContext);
   const { onOpen, confirmModalConfig, handleConfirm } =
     ModalContextService.confirmModal();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const navigate = useNavigate();
   const handleDelete = (id: string) => {
     onOpen();
     confirmModalConfig({
@@ -27,7 +29,7 @@ export default function BillTable() {
             key={item.id}
             item={item}
             onDelete={() => handleDelete(item.id)}
-            onUpdate={onOpenUpdate}
+            onOpen={() => navigate(`${item.id}`)}
           />
         ))
       ) : (

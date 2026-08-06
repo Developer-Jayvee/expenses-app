@@ -8,6 +8,9 @@ export default function GuestAuth() {
     authCheck.checkAuthentication();
   }, [location.pathname]);
 
+  if (authCheck.isAuthenticated === null) {
+    return null;
+  }
   if (authCheck.isAuthenticated) {
     return <Navigate to="/expense" replace />;
   }
