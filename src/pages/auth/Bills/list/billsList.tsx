@@ -34,7 +34,7 @@ export default function BillsList() {
         <Filters setIsOpen={setIsModalOpen} />
       </div>
       {/* Table */}
-      <div className="mt-4 h-150 overflow-y-auto">
+      <div className="mt-4 h-150 ">
         <BillTable />
       </div>
 

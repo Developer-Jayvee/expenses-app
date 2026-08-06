@@ -1,6 +1,7 @@
+import DropMenu from "@c/components/ui/DropMenu";
 import type { PostBillDataI } from "@c/types/billsTypes";
 import { date_formatter } from "@c/utils/utilities.util";
-
+import { BsThreeDots } from "react-icons/bs";
 interface BillCardI {
   item: Partial<PostBillDataI>;
   onDelete: (id: string) => void;
@@ -9,13 +10,35 @@ interface BillCardI {
 export default function BillCard({ item, onDelete, onUpdate }: BillCardI) {
   const date = date_formatter((item?.billing_date ?? new Date()) as Date);
   return (
-    <div className="bills-card p-4   bg-white rounded-2xl font-inter shadow-md">
+    <div className="bills-card p-4   bg-white rounded-2xl font-inter shadow-md hover:scale-105 transition-all cursor-pointer">
       <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold">{item?.name}</h3>
-          <div className="rounded-lg p-1 text-sm px-3 text-red-600 bg-red-200">
-            <p className="font-medium">{status ?? "Inactive"}</p>
+        <div className="flex justify-between">
+          <div className="">
+            <h3 className="font-bold inline-block mr-2">{item?.name}</h3>
+            <div className="inline-block rounded-lg p-1 text-sm px-2 text-red-600 bg-red-200">
+              {item.status}
+            </div>
           </div>
+          <div className="grow flex justify-end">
+            <div className="">
+              <DropMenu
+                options={[
+                  {
+                    items: [
+                      {
+                        label: "Delete",
+                        event: () =>
+                          item?.id ? onDelete(item?.id) : undefined,
+                      },
+                    ],
+                  },
+                ]}
+              >
+                <BsThreeDots />
+              </DropMenu>
+            </div>
+          </div>
+          <div></div>
         </div>
         <div>
           <h3 className="font-bold text-3xl">
@@ -33,7 +56,7 @@ export default function BillCard({ item, onDelete, onUpdate }: BillCardI) {
             <p>{date}</p>
           </div>
         </div>
-        <div className="flex gap-1 items-center">
+        {/* <div className="flex gap-1 items-center">
           <button
             className="bg-gray-300"
             onClick={() => (item?.id ? onUpdate(item?.id) : undefined)}
@@ -46,7 +69,7 @@ export default function BillCard({ item, onDelete, onUpdate }: BillCardI) {
           >
             Delete
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );
