@@ -4,6 +4,20 @@ import { CiReceipt } from "react-icons/ci";
 import { AiOutlinePieChart } from "react-icons/ai";
 import { LuCalendarRange } from "react-icons/lu";
 
+const pillColor: Record<PillColor, { bg: string; color: string }> = {
+  primary: {
+    bg: "bg-blue-200",
+    color: "text-blue-500",
+  },
+  danger: {
+    bg: "bg-red-300",
+    color: "text-red-500",
+  },
+  warning: {
+    bg: "bg-yellow-200",
+    color: "text-yellow-500",
+  },
+};
 const KPICard = ({
   children,
   iconColor = "primary",
@@ -11,20 +25,6 @@ const KPICard = ({
   value,
   description,
 }: KPICardI) => {
-  const pillColor: Record<PillColor, { bg: string; color: string }> = {
-    primary: {
-      bg: "bg-blue-200",
-      color: "text-blue-500",
-    },
-    danger: {
-      bg: "bg-red-300",
-      color: "text-red-500",
-    },
-    warning: {
-      bg: "bg-yellow-200",
-      color: "text-yellow-500",
-    },
-  };
   return (
     <div className="flex gap-2 place-items-center border-0 border-r-2 border-gray-500 ">
       <div className=" p-3">
