@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   createBills_API,
   deleteBill_API,
+  getBill_API,
   listBills_API,
   updateBill_API,
 } from "./api/bills/bills-api";
@@ -17,6 +18,8 @@ export default function useBillsHook() {
   const [formData, setFormData] = useState<PostBillDataI | null>(null);
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedExp, setSelectedExp] = useState<PostBillDataI | null>(null);
+
   const { handleSubmit, register, reset, control, getValues } = useForm({
     resolver: zodResolver(billSchema),
     defaultValues: {
@@ -24,6 +27,9 @@ export default function useBillsHook() {
       end_date: new Date().toLocaleDateString(),
     },
   });
+  const getBillData = async (id: string) => {
+    setSelectedExp(await getBill_API(id));
+  };
 
   const fetchList = async () => setBillList(await listBills_API());
 
@@ -107,5 +113,7 @@ export default function useBillsHook() {
     onDelete,
     onOpenUpdate,
     formData,
+    getBillData,
+    selectedExp,
   };
 }

@@ -159,10 +159,34 @@ button.primary {
   font-size: 1.1rem;
   transition: background-color 800ms ease-in-out;
 }
+button.ghost-primary {
+  color: var(--primary-color);
+  border: 1px solid rgba(128, 128, 128, 0.555);
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: background-color 800ms ease-in-out;
+}
+button.ghost-danger {
+  color: rgba(255, 0, 0, 0.729);
+  border: 1px solid rgba(255, 0, 0, 0.729);
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: background-color 800ms ease-in-out;
+}
 button.primary:hover {
   background-color: var(--primary-hover-color);
 }
-
+.btn-flex > * {
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+.btn-group > button {
+  display: inline-block;
+  width: auto;
+  padding: 8px 16px;
+  margin-right: 10px;
+}
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: "Geist Variable", sans-serif;

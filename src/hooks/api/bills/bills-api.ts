@@ -15,8 +15,8 @@ export const createBills_API = async (
   return response?.data;
 };
 
-export const listBills_API = async (): Promise<Array<PostBillDataI>> => {
-  const response = await http.get<Array<PostBillDataI>>("bills");
+export const listBills_API = async (): Promise<PostBillDataI[]> => {
+  const response = await http.get("bills");
   return response?.data;
 };
 
@@ -33,4 +33,9 @@ export const updateBill_API = async (
     ...data,
   });
   return response?.data;
+};
+
+export const getBill_API = async (id: string): Promise<PostBillDataI> => {
+  const response = await http.get(`bills/${id}`);
+  return response?.data as PostBillDataI;
 };

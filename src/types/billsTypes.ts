@@ -15,7 +15,11 @@ export interface PostBillDataI extends BillDataI {
 }
 
 export interface PostBillResponseI {
-  data: Array<PostBillDataI>;
+  data: PostBillDataI[];
+  message: string;
+}
+export interface GetBillResponseI {
+  data: PostBillDataI;
   message: string;
 }
 

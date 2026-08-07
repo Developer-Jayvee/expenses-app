@@ -9,7 +9,13 @@ const LoginPage = lazy(() => import("@c/pages/Login/login"));
 
 const BillsPage = lazy(() => import("@c/pages/auth/Bills/billsPage"));
 const BillList = lazy(() => import("@c/pages/auth/Bills/list/billsList"));
-const BillDetails = lazy(() => import("@c/pages/auth/Bills/billDetails"));
+const BillDetailsLayout = lazy(
+  () => import("@c/pages/auth/Bills/details/billDetailLayout"),
+);
+const BillTransactions = lazy(
+  () => import("@c/pages/auth/Bills/details/billTransactions"),
+);
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -49,7 +55,17 @@ const Router = createBrowserRouter([
       },
       {
         path: "bills/:id",
-        element: <BillDetails />,
+        element: <BillDetailsLayout />,
+        children: [
+          // {
+          //   index:true,
+          //   element: <Navigate to="transaction" replace/>
+          // },
+          {
+            path: "transactions",
+            element: <BillTransactions />,
+          },
+        ],
       },
     ],
   },
