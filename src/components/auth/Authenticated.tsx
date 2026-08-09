@@ -1,5 +1,6 @@
 import AuthProvider from "@c/context/AuthProvider";
 import ConfirmModalProvider from "@c/context/ConfirmModalProvider";
+import { ReferenceContextProvider } from "@c/context/ReferenceProvider";
 import useAuthCheck from "@c/hooks/auth/useAuthCheck";
 import AuthLayout from "@c/pages/auth/layout";
 import { useEffect } from "react";
@@ -24,7 +25,9 @@ export default function Authenticated() {
     <ConfirmModalProvider>
       <AuthLayout>
         <AuthProvider>
-          <Outlet />
+          <ReferenceContextProvider>
+            <Outlet />
+          </ReferenceContextProvider>
         </AuthProvider>
       </AuthLayout>
     </ConfirmModalProvider>

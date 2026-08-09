@@ -1,6 +1,13 @@
 export type InputTypes = "text" | "password";
 
-export interface DefaultResponseI {
-  data: Array<[]>;
-  message: string;
+export interface DefaultResponseI<R = Array<[]>, M = string> {
+  data: R;
+  message: M;
+}
+
+export type OptionTypes = "category" | "payments";
+
+export interface ReferenceResponseI {
+  label: string;
+  key: string;
 }
