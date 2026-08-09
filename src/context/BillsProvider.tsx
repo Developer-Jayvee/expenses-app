@@ -1,5 +1,5 @@
 import useBillsHook from "@c/hooks/useBillsHook";
-import type { BillDataI, PostBillDataI } from "@c/types/billsTypes";
+import type { BillDataI, BillFormI, PostBillDataI } from "@c/types/billsTypes";
 import {
   createContext,
   useMemo,
@@ -15,14 +15,14 @@ import type {
 
 interface BillsContextI {
   bills: Array<PostBillDataI> | [];
-  register: UseFormRegister<BillDataI> | null;
-  handleSubmit: UseFormHandleSubmit<BillDataI> | null;
+  register: UseFormRegister<BillFormI> | null;
+  handleSubmit: UseFormHandleSubmit<BillFormI> | null;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   onDelete: (id: string) => void;
   onOpenUpdate: (id: string) => void;
-  control: Control<BillDataI> | null;
+  control: Control<BillFormI> | null;
 }
 interface BillsProviderI {
   children: React.ReactNode;

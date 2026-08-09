@@ -23,6 +23,7 @@ export default function useBillsHook() {
   const { handleSubmit, register, reset, control, getValues } = useForm({
     resolver: zodResolver(billSchema),
     defaultValues: {
+      category: "",
       billing_date: new Date("Y-m-d").toLocaleDateString(),
       end_date: new Date().toLocaleDateString(),
     },

@@ -1,16 +1,36 @@
 import FormControl from "@c/components/FormControl";
 import FormSelect from "@c/components/FormSelect";
 import { BillsContext } from "@c/context/BillsProvider";
+import { useReferenceProvider } from "@c/context/ReferenceProvider";
 import { StatusOptions } from "@c/data/options";
+import {
+  FieldDescription,
+  FieldGroup,
+  FieldLegend,
+  FieldSeparator,
+  FieldSet,
+} from "@c/lib/shadcn/components/ui/field";
+import { Label } from "@c/lib/shadcn/components/ui/label";
+import { Switch } from "@c/lib/shadcn/components/ui/switch";
+import { Textarea } from "@c/lib/shadcn/components/ui/textarea";
 import { useContext } from "react";
 
-export default function BillForm() {
-  const { register, control } = useContext(BillsContext);
-  if (!register) return null;
+export const BasicInfo = ({
+  register,
+  control,
+  references,
+}: {
+  register: any;
+  control: any;
+  references: any;
+}) => {
   return (
-    <div className="p-4">
-      <h3 className="font-bold text-2xl">Bills</h3>
-      <div className="mt-4 flex flex-col gap-2">
+    <FieldSet>
+      <FieldLegend>Basic Information</FieldLegend>
+      <FieldDescription>
+        Core identity and classification of the bill:
+      </FieldDescription>
+      <FieldGroup>
         <FormControl
           label={{
             name: "Bill Title",
@@ -22,6 +42,39 @@ export default function BillForm() {
             props: { ...register?.("name") },
           }}
         />
+        <FormSelect
+          control={control}
+          label={{
+            name: "Category",
+          }}
+          name="category"
+          input={{
+            placeholder: "Select Category",
+            props: { ...register?.("category") },
+          }}
+          options={references?.category ?? []}
+        />
+        <div className="flex flex-col gap-2">
+          <label className="font-medium text-muted-foreground">
+            Description
+          </label>
+          <Textarea
+            placeholder="Type your bill description here"
+            {...register?.("description")}
+          />
+        </div>
+      </FieldGroup>
+    </FieldSet>
+  );
+};
+export const BillingDetails = ({ register }: { register: any }) => {
+  return (
+    <FieldSet>
+      <FieldLegend>Billing Details</FieldLegend>
+      <FieldDescription>
+        Information about the billing period and recurrence
+      </FieldDescription>
+      <FieldGroup>
         <FormControl
           label={{ name: "Amount(Pesos)" }}
           input={{
@@ -33,7 +86,7 @@ export default function BillForm() {
         />
         <div className="grid grid-cols-2 gap-x-4">
           <FormControl
-            label={{ name: "Billing Date" }}
+            label={{ name: "Start Date" }}
             input={{
               name: "billing_date",
               placeholder: "Billing Date",
@@ -55,6 +108,33 @@ export default function BillForm() {
             }}
           />
         </div>
+
+        {/* frequency */}
+      </FieldGroup>
+    </FieldSet>
+  );
+};
+export const PaymentSettings = ({
+  register,
+  control,
+}: {
+  control: any;
+  register: any;
+}) => {
+  return (
+    <FieldSet>
+      <FieldLegend>Payment Settings</FieldLegend>
+      <FieldDescription>
+        Things that control how the bill is paid
+      </FieldDescription>
+      <FieldGroup>
+        {/* auto pay */}
+        <div className="flex items-center space-x-2">
+          <Switch id="autoplay" />
+          <Label className="font-medium text-muted-foreground">
+            Is Autopay
+          </Label>
+        </div>
         <FormSelect
           control={control}
           label={{
@@ -67,6 +147,28 @@ export default function BillForm() {
           }}
           options={StatusOptions}
         />
+      </FieldGroup>
+    </FieldSet>
+  );
+};
+
+export default function BillForm() {
+  const { register, control } = useContext(BillsContext);
+  const { references } = useReferenceProvider();
+  if (!register) return null;
+  return (
+    <div className="p-4 flex h-screen flex-col">
+      <h3 className="font-bold text-2xl">Bills</h3>
+      <div className="mt-4 flex flex-col gap-2">
+        <FieldGroup>
+          <BasicInfo {...{ register, control, references }} />
+          <FieldSeparator />
+
+          <BillingDetails {...{ register }} />
+          <FieldSeparator />
+
+          <PaymentSettings {...{ register, control }} />
+        </FieldGroup>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { OptionTypes, ReferenceResponseI } from "@c/types/globalTypes";
 import { useEffect, useState } from "react";
 import { reference_API } from "./api/reference-api";
+import { LocalStorageClass } from "@c/utils/localStorage.util";
 
 export default function useReferenceHook() {
   const [references, setReferences] = useState<{
@@ -9,11 +10,21 @@ export default function useReferenceHook() {
   } | null>(null);
 
   const getReferences = async (type: OptionTypes) => {
-    const response = await reference_API(type);
-    if (response) {
+    if (!LocalStorageClass.isAlreadyStored(`reference_${type}`)) {
+      const response = await reference_API(type);
+      if (response) {
+        setReferences((prev) => ({
+          ...prev,
+          [type]: response,
+        }));
+        LocalStorageClass.store(`reference_${type}`, JSON.stringify(response));
+      }
+    } else {
       setReferences((prev) => ({
         ...prev,
-        type: response,
+        [type]: JSON.parse(
+          LocalStorageClass.getValue(`reference_${type}`) ?? "",
+        ),
       }));
     }
   };

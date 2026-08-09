@@ -49,14 +49,17 @@ export default function FormSelect<T, TForm extends FieldValues>({
                 <ComboboxContent>
                   <ComboboxEmpty>No items found.</ComboboxEmpty>
                   <ComboboxList>
-                    {(item) => (
-                      <ComboboxItem
-                        key={String(item).toLowerCase()}
-                        value={item}
-                      >
-                        {item}
-                      </ComboboxItem>
-                    )}
+                    {(item) => {
+                      const label =
+                        typeof item === "object" ? item.label : item;
+                      const value = typeof item === "object" ? item.key : item;
+
+                      return (
+                        <ComboboxItem key={value} value={value}>
+                          {label}
+                        </ComboboxItem>
+                      );
+                    }}
                   </ComboboxList>
                 </ComboboxContent>
               </Combobox>

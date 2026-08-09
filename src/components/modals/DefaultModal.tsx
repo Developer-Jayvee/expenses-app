@@ -41,14 +41,26 @@ export function DefaultModal({
   useEffect(() => setIsModalOpen(isOpen), [isOpen]);
   return (
     <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" showCloseButton={showCloseButton}>
-        <form ref={formRef} {...formProps}>
-          {children}
+      <DialogContent
+        className="flex max-h-[90vh] flex-col sm:max-w-xl"
+        showCloseButton={showCloseButton}
+      >
+        <form
+          ref={formRef}
+          {...formProps}
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <div className="min-h-0 flex-1 overflow-y-auto my-6  p-4">
+            {children}
+          </div>
           <div className="grid grid-cols-2 gap-2 mt-1">
             <Button
               variant="secondary"
               onClick={() => {
                 setIsOpen(false);
+                {
+                  children;
+                }
                 setIsModalOpen(false);
               }}
             >
