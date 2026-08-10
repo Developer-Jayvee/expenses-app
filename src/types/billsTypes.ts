@@ -41,13 +41,14 @@ export const FrequencySchema = z.enum(["monthly", "yearly", "daily", "once"]);
 export interface BillFormI {
   name: string;
   amount: number;
-  billing_date: string | null;
-  end_date: string | null;
+  billing_date: string;
+  end_date: string;
   status: BillStatusT;
   category: BillCategoryType;
   is_autopay: boolean;
   description: string;
   frequency: FrequencyTypes;
+  default_payment: "cash" | "gcash";
 }
 export interface BillDataI {
   name: string;
@@ -57,7 +58,7 @@ export interface BillDataI {
   status: BillStatusT;
 }
 
-export interface PostBillDataI extends BillDataI {
+export interface PostBillDataI extends BillFormI {
   id: string;
 }
 
@@ -75,12 +76,12 @@ export interface BillCardI extends BillDataI {}
 export const billSchema = z.object({
   name: z.string(),
   amount: z.number(),
-  billing_date: z.string().optional(),
-  end_date: z.string().optional(),
+  billing_date: z.string(),
+  end_date: z.string(),
   status: z.enum(["active", "inactive", "completed"]),
-
   category: BillCategorySchema,
-  is_autopay: z.boolean().default(false),
+  is_autopay: z.boolean(),
   description: z.string().optional(),
   frequency: FrequencySchema,
+  default_payment: z.enum(["gcash", "cash"]),
 });

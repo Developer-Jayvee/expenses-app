@@ -14,6 +14,7 @@ import { Label } from "@c/lib/shadcn/components/ui/label";
 import { Switch } from "@c/lib/shadcn/components/ui/switch";
 import { Textarea } from "@c/lib/shadcn/components/ui/textarea";
 import { useContext } from "react";
+import { Controller } from "react-hook-form";
 
 export const BasicInfo = ({
   register,
@@ -130,11 +131,53 @@ export const PaymentSettings = ({
       <FieldGroup>
         {/* auto pay */}
         <div className="flex items-center space-x-2">
-          <Switch id="autoplay" />
+          <Controller
+            control={control}
+            name="is_autopay"
+            render={({ field }) => {
+              console.log("is_autopay:", field.value, typeof field.value);
+
+              return (
+                <Switch
+                  checked={field.value ?? false}
+                  onCheckedChange={field.onChange}
+                />
+              );
+            }}
+          />
+
           <Label className="font-medium text-muted-foreground">
             Is Autopay
           </Label>
         </div>
+
+        <div className="flex gap-2 items-center">
+          <FormSelect
+            control={control}
+            label={{
+              name: "Frequency",
+            }}
+            name="frequency"
+            input={{
+              placeholder: "Select Frequency",
+              props: { ...register?.("frequency") },
+            }}
+            options={["monthly", "yearly", "daily", "once"]}
+          />
+          <FormSelect
+            control={control}
+            label={{
+              name: "Payment Method",
+            }}
+            name="default_payment"
+            input={{
+              placeholder: "Select Payment Method",
+              props: { ...register?.("default_payment") },
+            }}
+            options={["cash", "gcash"]}
+          />
+        </div>
+
         <FormSelect
           control={control}
           label={{

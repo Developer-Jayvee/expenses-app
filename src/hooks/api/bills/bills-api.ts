@@ -1,13 +1,14 @@
 import http from "@c/configs/axiosHttp";
 import type {
   BillDataI,
+  BillFormI,
   PostBillDataI,
   PostBillResponseI,
 } from "@c/types/billsTypes";
 import type { DefaultResponseI } from "@c/types/globalTypes";
 
 export const createBills_API = async (
-  data: BillDataI,
+  data: BillFormI,
 ): Promise<PostBillResponseI> => {
   const response = await http.post<PostBillResponseI>("bills", {
     ...data,

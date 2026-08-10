@@ -4,6 +4,7 @@ import { FaRegCreditCard } from "react-icons/fa6";
 import { IoPricetagOutline } from "react-icons/io5";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
+import useReferenceHook from "@c/hooks/useReferenceHook";
 const DynamicDetails = ({ children, type, value }: DynamicDetailsI) => {
   return (
     <div className="flex gap-5 items-center ">
@@ -18,6 +19,7 @@ const DynamicDetails = ({ children, type, value }: DynamicDetailsI) => {
 
 export default function BillDetailHeaders() {
   const { details } = useBillDetail();
+  const { references } = useReferenceHook();
   return (
     <div className="grid grid-cols-2 w-full mt-4">
       <div className="leading-6">
@@ -39,14 +41,30 @@ export default function BillDetailHeaders() {
           <DynamicDetails type="Next Due Date" value="Sep 1, 2026">
             <IoCalendarNumberOutline size={20} />
           </DynamicDetails>
-          <DynamicDetails type="Auto Pay" value="Off">
+          <DynamicDetails
+            type="Auto Pay"
+            value={details?.is_autopay ? "On" : "Off"}
+          >
             <RiResetRightFill size={20} />
           </DynamicDetails>
 
-          <DynamicDetails type="Payment Method" value="GCASH">
+          <DynamicDetails
+            type="Payment Method"
+            value={
+              details?.default_payment
+                ? String(details?.default_payment)?.toUpperCase()
+                : ""
+            }
+          >
             <FaRegCreditCard size={20} />
           </DynamicDetails>
-          <DynamicDetails type="Category" value="Utilities">
+          <DynamicDetails
+            type="Category"
+            value={
+              references?.category?.find(({ key }) => key == details?.category)
+                ?.label ?? ""
+            }
+          >
             <IoPricetagOutline size={20} />
           </DynamicDetails>
         </div>

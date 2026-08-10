@@ -1,4 +1,10 @@
-import { billSchema, type PostBillDataI } from "@c/types/billsTypes";
+import {
+  billSchema,
+  type BillCategoryType,
+  type BillFormI,
+  type FrequencyTypes,
+  type PostBillDataI,
+} from "@c/types/billsTypes";
 import { useEffect, useState, type FormEvent } from "react";
 import {
   createBills_API,
@@ -23,9 +29,16 @@ export default function useBillsHook() {
   const { handleSubmit, register, reset, control, getValues } = useForm({
     resolver: zodResolver(billSchema),
     defaultValues: {
+      name: "",
+      amount: 0,
+      status: "active",
+      is_autopay: true,
+      description: "",
+      frequency: "monthly",
       category: "",
       billing_date: new Date("Y-m-d").toLocaleDateString(),
       end_date: new Date().toLocaleDateString(),
+      default_payment: "cash",
     },
   });
   const getBillData = async (id: string) => {
@@ -45,7 +58,7 @@ export default function useBillsHook() {
     setFormData(data);
     setIsModalOpen(true);
     setSelectedId(id);
-    reset({ ...data });
+    // reset({ ...data });
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -57,25 +70,31 @@ export default function useBillsHook() {
     }
     await createBills_API({
       ...{
-        name: String(formData.get("name")),
+        name: String(formData.get("name")) as string,
         amount: Number(formData.get("amount")),
         billing_date: String(formData.get("billing_date")),
         end_date: String(formData.get("end_date")),
-        status: "active",
+        status: getValues("status"),
+        frequency: getValues("frequency") as FrequencyTypes,
+        category: getValues("category") as BillCategoryType,
+        is_autopay: getValues("is_autopay"),
+        description: formData.get("description") as string,
+        default_payment: getValues("default_payment"),
       },
-    })
-      .then(async () => await fetchList())
-      .finally(async () => await resetAll());
-
+    }).then(async () => {
+      await fetchList();
+      await resetAll();
+    });
     setIsUpdate(false);
   };
   const handleUpdate = async () => {
     if (!getValues()) return false;
     if (!selectedId) return false;
 
-    await updateBill_API(selectedId, getValues())
-      .then(async () => await fetchList())
-      .finally(async () => await resetAll());
+    await updateBill_API(selectedId, getValues()).then(async () => {
+      await fetchList();
+      await resetAll();
+    });
   };
   const resetAll = async () => {
     setIsModalOpen(false);
@@ -98,6 +117,7 @@ export default function useBillsHook() {
         name: "",
         billing_date: "",
         end_date: "",
+        is_autopay: true,
       });
   }, [isModalOpen, reset]);
 
