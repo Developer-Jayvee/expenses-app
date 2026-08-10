@@ -19,7 +19,6 @@ export const ReferenceContextProvider = ({
   children: React.ReactNode;
 }) => {
   const { references } = useReferenceHook();
-  console.log(references);
   const value: Record<OptionTypes, Array<ReferenceResponseI> | undefined> = {
     category: references?.category ?? undefined,
     payments: references?.payments ?? undefined,

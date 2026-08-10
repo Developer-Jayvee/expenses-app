@@ -1,7 +1,6 @@
 import {
   billSchema,
   type BillCategoryType,
-  type BillFormI,
   type FrequencyTypes,
   type PostBillDataI,
 } from "@c/types/billsTypes";
