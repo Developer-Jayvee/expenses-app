@@ -11,7 +11,14 @@ import BillDetailSummary from "./billDetailSummary";
 import { LiaWalletSolid } from "react-icons/lia";
 import { CiEdit, CiPause1, CiTrash } from "react-icons/ci";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
-import { useEffect } from "react";
+import { useContext, useEffect, useRef, useState, type FormEvent } from "react";
+import { DefaultModal } from "@c/components/modals/DefaultModal";
+import useBillsHook from "@c/hooks/useBillsHook";
+import BillForm from "../components/billForm";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { billSchema } from "@c/types/billsTypes";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { updateBill_API } from "@c/hooks/api/bills/bills-api";
 // import { useBillDetail } from "@c/context/BillDetailsProvider";
 export interface DynamicDetailsI {
   children: React.ReactNode;
@@ -30,14 +37,48 @@ export default function BillDetails() {
 
   const { id } = useParams();
   const { details, getCallback } = useBillDetail();
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const formRef = useRef(null);
 
+  const { register, reset, control, getValues } = useForm({
+    resolver: zodResolver(billSchema),
+    defaultValues: {
+      name: "",
+      amount: 0,
+      status: "active",
+      is_autopay: true,
+      description: "",
+      frequency: "monthly",
+      category: "",
+      billing_date: new Date("Y-m-d").toLocaleDateString(),
+      end_date: new Date().toLocaleDateString(),
+      default_payment: "cash",
+    },
+  });
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (details) {
+      reset(details);
+    }
+  }, [details, reset]);
+
   if (details === null) return null;
+
+  const onUpdate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!id) return false;
+    const response = await updateBill_API(id, getValues());
+    if (response) {
+      getCallback(id);
+      alert("Successfully updated");
+      setIsModalOpen(false);
+    }
+  };
 
   return (
     <div className="p-5">
@@ -58,22 +99,26 @@ export default function BillDetails() {
       {/* ACTIONS */}
       <div className="mt-5">
         <div className="btn-group">
-          <button className="primary btn-flex">
+          {/* <button className="primary btn-flex">
             <LiaWalletSolid size={20} />
             Pay Now
-          </button>
-          <button className="ghost-primary btn-flex">
+          </button> */}
+          <button
+            className="ghost-primary btn-flex"
+            disabled={details === null}
+            onClick={() => setIsModalOpen(true)}
+          >
             <CiEdit size={20} />
             Edit Bill
           </button>
-          <button className="ghost-primary btn-flex">
+          {/* <button className="ghost-primary btn-flex">
             <CiPause1 size={20} />
             Pause
           </button>
           <button className="ghost-danger btn-flex">
             <CiTrash size={20} />
             Delete
-          </button>
+          </button> */}
         </div>
       </div>
       {/* KPI */}
@@ -101,6 +146,20 @@ export default function BillDetails() {
       <div className="mt-4">
         <Outlet />
       </div>
+
+      <DefaultModal
+        isOpen={isModalOpen}
+        setIsOpen={setIsModalOpen}
+        onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
+        showCloseButton={false}
+        formProps={{
+          onSubmit: onUpdate,
+        }}
+        formRef={formRef}
+      >
+        <></>
+        <BillForm {...{ register, control }} />
+      </DefaultModal>
     </div>
   );
 }

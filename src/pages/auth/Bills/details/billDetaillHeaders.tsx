@@ -33,7 +33,7 @@ export default function BillDetailHeaders() {
         <h2 className="text-3xl font-medium">
           P {Number(details?.amount).toLocaleString()}
         </h2>
-        <p>Recurring every month</p>
+        <p>{details?.description}</p>
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px_1fr))]">

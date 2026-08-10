@@ -1,6 +1,5 @@
 import FormControl from "@c/components/FormControl";
 import FormSelect from "@c/components/FormSelect";
-import { BillsContext } from "@c/context/BillsProvider";
 import { useReferenceProvider } from "@c/context/ReferenceProvider";
 import { StatusOptions } from "@c/data/options";
 import {
@@ -13,7 +12,6 @@ import {
 import { Label } from "@c/lib/shadcn/components/ui/label";
 import { Switch } from "@c/lib/shadcn/components/ui/switch";
 import { Textarea } from "@c/lib/shadcn/components/ui/textarea";
-import { useContext } from "react";
 import { Controller } from "react-hook-form";
 
 export const BasicInfo = ({
@@ -195,8 +193,13 @@ export const PaymentSettings = ({
   );
 };
 
-export default function BillForm() {
-  const { register, control } = useContext(BillsContext);
+export default function BillForm({
+  register,
+  control,
+}: {
+  register: any;
+  control: any;
+}) {
   const { references } = useReferenceProvider();
   if (!register) return null;
   return (

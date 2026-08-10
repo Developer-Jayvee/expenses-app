@@ -1,10 +1,5 @@
 import useBillsHook from "@c/hooks/useBillsHook";
-import type {
-  BillDataI,
-  BillFormI,
-  billSchema,
-  PostBillDataI,
-} from "@c/types/billsTypes";
+import type { billSchema, PostBillDataI } from "@c/types/billsTypes";
 import {
   createContext,
   useMemo,

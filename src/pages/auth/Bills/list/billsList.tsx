@@ -25,7 +25,9 @@ const Filters = ({
 };
 
 export default function BillsList() {
-  const { onSubmit, isModalOpen, setIsModalOpen } = useContext(BillsContext);
+  const { onSubmit, isModalOpen, setIsModalOpen, register, control } =
+    useContext(BillsContext);
+
   const formRef = useRef<HTMLFormElement>(null);
   return (
     <div className="w-full h-full p-1 flex flex-col">
@@ -49,7 +51,7 @@ export default function BillsList() {
         }}
         formRef={formRef}
       >
-        <BillForm />
+        <BillForm {...{ register, control }} />
       </DefaultModal>
     </div>
   );

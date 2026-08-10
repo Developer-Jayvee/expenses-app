@@ -2,10 +2,12 @@ import http from "@c/configs/axiosHttp";
 import type {
   BillDataI,
   BillFormI,
+  billSchema,
   PostBillDataI,
   PostBillResponseI,
 } from "@c/types/billsTypes";
 import type { DefaultResponseI } from "@c/types/globalTypes";
+import type z from "zod";
 
 export const createBills_API = async (
   data: BillFormI,
@@ -28,7 +30,7 @@ export const deleteBill_API = async (id: string): Promise<DefaultResponseI> => {
 
 export const updateBill_API = async (
   id: string,
-  data: Partial<BillDataI>,
+  data: Partial<z.infer<typeof billSchema>>,
 ): Promise<PostBillResponseI> => {
   const response = await http.patch<PostBillResponseI>(`bills/${id}`, {
     ...data,
