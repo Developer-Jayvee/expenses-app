@@ -53,8 +53,9 @@ export function DefaultModal({
           <div className="min-h-0 flex-1 overflow-y-auto my-6  p-4">
             {children}
           </div>
-          <div className="grid grid-cols-2 gap-2 mt-1">
+          <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
             <Button
+              className="px-6!"
               variant="secondary"
               onClick={() => {
                 setIsOpen(false);
@@ -67,6 +68,7 @@ export function DefaultModal({
               Cancel
             </Button>
             <Button
+              className="px-6!"
               variant="primary"
               type={`${buttonEvents?.submitBtn?.type ?? "submit"}`}
               onClick={() =>

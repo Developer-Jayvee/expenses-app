@@ -2,7 +2,7 @@ import { useContext, useRef, type Dispatch, type SetStateAction } from "react";
 import { BiPlus } from "react-icons/bi";
 import { DefaultModal } from "@c/components/modals/DefaultModal";
 import BillTable from "../components/bill-table";
-import BillForm from "../components/billForm";
+import BillForm from "../components/BillForm/billForm";
 import { BillsContext } from "@c/context/BillsProvider";
 
 const Filters = ({

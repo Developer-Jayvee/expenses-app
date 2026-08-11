@@ -14,7 +14,7 @@ import { useBillDetail } from "@c/context/BillDetailsProvider";
 import { useContext, useEffect, useRef, useState, type FormEvent } from "react";
 import { DefaultModal } from "@c/components/modals/DefaultModal";
 import useBillsHook from "@c/hooks/useBillsHook";
-import BillForm from "../components/billForm";
+import BillForm from "../components/BillForm/billForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { billSchema } from "@c/types/billsTypes";
 import { useForm, type SubmitHandler } from "react-hook-form";

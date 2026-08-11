@@ -11,3 +11,4 @@ export interface ReferenceResponseI {
   label: string;
   key: string;
 }
+export type OptionFormatI = Array<{ label: string; key: string }>;
