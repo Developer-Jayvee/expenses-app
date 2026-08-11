@@ -44,7 +44,8 @@ export default function useBillsHook() {
 
   const fetchList = async () => setBillList(await listBills_API());
 
-  const onDelete = async (id: string) => {
+  const onDelete = async (id: string | null) => {
+    if (!id) return false;
     await deleteBill_API(id).then(() => fetchList());
   };
 
@@ -114,5 +115,6 @@ export default function useBillsHook() {
     getBillData,
     selectedExp,
     reset,
+    getValues,
   };
 }

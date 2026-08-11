@@ -85,3 +85,9 @@ export const billSchema = z.object({
   frequency: FrequencySchema,
   default_payment: z.enum(["gcash", "cash"]),
 });
+
+export const logPaymentSchema = z.object({
+  payment_mode: z.enum(["gcash", "cash"]),
+  transaction_date: z.string(),
+});
+export type LogPaymentType = z.infer<typeof logPaymentSchema>;

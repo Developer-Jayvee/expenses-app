@@ -6,14 +6,16 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
 
 interface ModalI {
   header?: string;
   showCloseButton?: boolean;
 }
-export default function Modal({ showCloseButton = true, header }: ModalI) {
-  const { isOpen, onClose } = useModal();
+export default function Modal({ showCloseButton = false }: ModalI) {
+  const { isOpen, onClose, modalSetting } = useModal();
+  const ModalChildren = modalSetting?.content;
   return (
     <Dialog
       open={isOpen}
@@ -24,16 +26,35 @@ export default function Modal({ showCloseButton = true, header }: ModalI) {
       }}
     >
       <DialogContent showCloseButton={showCloseButton}>
-        {header && <DialogHeader>{header}</DialogHeader>}
+        {modalSetting?.header && (
+          <DialogHeader>
+            <DialogTitle>{modalSetting?.header}</DialogTitle>
+          </DialogHeader>
+        )}
         <div className="">
-          <form>
-            <DialogFooter>
+          {ModalChildren || ""}
+          <DialogFooter>
+            <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
               <DialogClose
-                hidden={!showCloseButton}
-                render={<Button variant="outline">Close</Button>}
+                render={
+                  <Button onClick={() => onClose()} variant="outline">
+                    Close
+                  </Button>
+                }
               />
-            </DialogFooter>
-          </form>
+              {modalSetting?.submitEvent && (
+                <Button
+                  className="px-6!"
+                  variant="primary"
+                  type="submit"
+                  onClick={() => modalSetting?.submitEvent?.()}
+                >
+                  {" "}
+                  Submit
+                </Button>
+              )}
+            </div>
+          </DialogFooter>
         </div>
       </DialogContent>
     </Dialog>

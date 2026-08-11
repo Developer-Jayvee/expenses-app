@@ -9,16 +9,15 @@ import {
 import BillDetailHeaders from "./billDetaillHeaders";
 import BillDetailSummary from "./billDetailSummary";
 import { LiaWalletSolid } from "react-icons/lia";
-import { CiEdit, CiPause1, CiTrash } from "react-icons/ci";
+import { CiEdit, CiTrash } from "react-icons/ci";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
-import { useContext, useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DefaultModal } from "@c/components/modals/DefaultModal";
 import useBillsHook from "@c/hooks/useBillsHook";
 import BillForm from "../components/BillForm/billForm";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { billSchema } from "@c/types/billsTypes";
-import { useForm, type SubmitHandler } from "react-hook-form";
 import { updateBill_API } from "@c/hooks/api/bills/bills-api";
+import { useModal } from "@c/context/ModalProvider";
+import PaymentLog from "../components/PaymentLog/paymentLog";
 // import { useBillDetail } from "@c/context/BillDetailsProvider";
 export interface DynamicDetailsI {
   children: React.ReactNode;
@@ -39,22 +38,20 @@ export default function BillDetails() {
   const { details, getCallback } = useBillDetail();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const formRef = useRef(null);
+  const { register, reset, control, getValues, onDelete } = useBillsHook();
+  const { onOpen, onClose, configureModal } = useModal();
 
-  const { register, reset, control, getValues } = useForm({
-    resolver: zodResolver(billSchema),
-    defaultValues: {
-      name: "",
-      amount: 0,
-      status: "active",
-      is_autopay: true,
-      description: "",
-      frequency: "monthly",
-      category: "",
-      billing_date: new Date("Y-m-d").toLocaleDateString(),
-      end_date: new Date().toLocaleDateString(),
-      default_payment: "cash",
-    },
-  });
+  const handleLogPayment = () => {
+    configureModal?.({
+      header: "Log Payment",
+      content: <PaymentLog />,
+      submitEvent: () => {
+        alert(1);
+        onClose();
+      },
+    });
+    onOpen();
+  };
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
@@ -99,10 +96,13 @@ export default function BillDetails() {
       {/* ACTIONS */}
       <div className="mt-5">
         <div className="btn-group">
-          {/* <button className="primary btn-flex">
+          <button
+            className="primary btn-flex"
+            onClick={() => handleLogPayment()}
+          >
             <LiaWalletSolid size={20} />
-            Pay Now
-          </button> */}
+            Log Payment
+          </button>
           <button
             className="ghost-primary btn-flex"
             disabled={details === null}
@@ -114,11 +114,14 @@ export default function BillDetails() {
           {/* <button className="ghost-primary btn-flex">
             <CiPause1 size={20} />
             Pause
-          </button>
-          <button className="ghost-danger btn-flex">
+          </button>*/}
+          <button
+            onClick={() => onDelete(id ?? null)}
+            className="ghost-danger btn-flex"
+          >
             <CiTrash size={20} />
             Delete
-          </button> */}
+          </button>
         </div>
       </div>
       {/* KPI */}
