@@ -1,5 +1,5 @@
 import type { PostBillDataI } from "@c/types/billsTypes";
-import { createContext, useState } from "react";
+import { createContext } from "react";
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
 import useBillsHook from "@c/hooks/useBillsHook";
 

@@ -1,5 +1,6 @@
 import AuthProvider from "@c/context/AuthProvider";
 import ConfirmModalProvider from "@c/context/ConfirmModalProvider";
+import { ModalProvider } from "@c/context/ModalProvider";
 import { ReferenceContextProvider } from "@c/context/ReferenceProvider";
 import useAuthCheck from "@c/hooks/auth/useAuthCheck";
 import AuthLayout from "@c/pages/auth/layout";
@@ -25,9 +26,11 @@ export default function Authenticated() {
     <ConfirmModalProvider>
       <AuthLayout>
         <AuthProvider>
-          <ReferenceContextProvider>
-            <Outlet />
-          </ReferenceContextProvider>
+          <ModalProvider>
+            <ReferenceContextProvider>
+              <Outlet />
+            </ReferenceContextProvider>
+          </ModalProvider>
         </AuthProvider>
       </AuthLayout>
     </ConfirmModalProvider>
