@@ -17,7 +17,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export default function useBillsHook() {
-  const location = useLocation();
   const [billList, setBillList] = useState<Array<PostBillDataI> | []>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState<PostBillDataI | null>(null);
@@ -99,29 +98,6 @@ export default function useBillsHook() {
     setSelectedId(null);
     await fetchList();
   };
-
-  useEffect(() => {
-    const abort = new AbortController();
-    fetchList();
-    return () => {
-      abort.abort();
-    };
-  }, [location.pathname]);
-  useEffect(() => {
-    if (!isModalOpen)
-      reset({
-        name: "",
-        amount: 0,
-        status: "active",
-        is_autopay: true,
-        description: "",
-        frequency: "monthly",
-        category: "",
-        billing_date: new Date("Y-m-d").toLocaleDateString(),
-        end_date: new Date().toLocaleDateString(),
-        default_payment: "cash",
-      });
-  }, [isModalOpen, reset]);
 
   return {
     billList,

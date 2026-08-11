@@ -2,6 +2,7 @@ import useBillsHook from "@c/hooks/useBillsHook";
 import type { billSchema, PostBillDataI } from "@c/types/billsTypes";
 import {
   createContext,
+  useEffect,
   useMemo,
   type Dispatch,
   type FormEvent,
@@ -12,6 +13,7 @@ import type {
   UseFormHandleSubmit,
   UseFormRegister,
 } from "react-hook-form";
+import { useLocation } from "react-router";
 import type z from "zod";
 
 type BillFormSchema = z.infer<typeof billSchema>;
@@ -43,6 +45,8 @@ export const BillsContext = createContext<BillsContextI>({
 });
 
 export default function BillsProvider({ children }: BillsProviderI) {
+  const location = useLocation();
+
   const {
     billList,
     register,
@@ -53,6 +57,8 @@ export default function BillsProvider({ children }: BillsProviderI) {
     onDelete,
     onOpenUpdate,
     control,
+    fetchList,
+    reset,
   } = useBillsHook();
 
   const providerValues = useMemo<BillsContextI>(
@@ -69,6 +75,28 @@ export default function BillsProvider({ children }: BillsProviderI) {
     }),
     [billList, isModalOpen],
   );
+  useEffect(() => {
+    const abort = new AbortController();
+    fetchList();
+    return () => {
+      abort.abort();
+    };
+  }, [location.pathname]);
+  useEffect(() => {
+    if (!isModalOpen)
+      reset({
+        name: "",
+        amount: 0,
+        status: "active",
+        is_autopay: true,
+        description: "",
+        frequency: "monthly",
+        category: "",
+        billing_date: new Date("Y-m-d").toLocaleDateString(),
+        end_date: new Date().toLocaleDateString(),
+        default_payment: "cash",
+      });
+  }, [isModalOpen, reset]);
 
   return (
     <BillsContext.Provider value={providerValues}>
