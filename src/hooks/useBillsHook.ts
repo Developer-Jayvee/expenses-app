@@ -57,7 +57,6 @@ export default function useBillsHook() {
     setFormData(data);
     setIsModalOpen(true);
     setSelectedId(id);
-    // reset({ ...data });
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -111,12 +110,16 @@ export default function useBillsHook() {
   useEffect(() => {
     if (!isModalOpen)
       reset({
-        status: "active",
-        amount: 0,
         name: "",
-        billing_date: "",
-        end_date: "",
+        amount: 0,
+        status: "active",
         is_autopay: true,
+        description: "",
+        frequency: "monthly",
+        category: "",
+        billing_date: new Date("Y-m-d").toLocaleDateString(),
+        end_date: new Date().toLocaleDateString(),
+        default_payment: "cash",
       });
   }, [isModalOpen, reset]);
 

@@ -14,7 +14,7 @@ import {
   type Path,
 } from "react-hook-form";
 
-export default function FormSelect<T, TForm extends FieldValues>({
+export default function FormSelect<TForm extends FieldValues>({
   label,
   input,
   name,
@@ -23,7 +23,7 @@ export default function FormSelect<T, TForm extends FieldValues>({
 }: {
   label: ElementI;
   input: Pick<InputTextI, "placeholder" | "props">;
-  options: T[] | [];
+  options: Array<{ key: string; label: string }> | null;
   control: Control<TForm> | null;
   name: Path<TForm>;
 }) {
@@ -35,35 +35,45 @@ export default function FormSelect<T, TForm extends FieldValues>({
         {label.name}
       </label>
       <div>
-        {control && (
+        {control && options && (
           <Controller
             name={name}
             control={control}
-            render={({ field }) => (
-              <Combobox
-                value={field.value}
-                onValueChange={field.onChange}
-                items={options}
-              >
-                <ComboboxInput placeholder={input.placeholder} />
-                <ComboboxContent>
-                  <ComboboxEmpty>No items found.</ComboboxEmpty>
-                  <ComboboxList>
-                    {(item) => {
-                      const label =
-                        typeof item === "object" ? item.label : item;
-                      const value = typeof item === "object" ? item.key : item;
+            render={({ field }) => {
+              const selectedItem = options.find(
+                ({ key }) => key == field.value,
+              );
 
-                      return (
-                        <ComboboxItem key={value} value={value}>
-                          {label}
-                        </ComboboxItem>
-                      );
-                    }}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
-            )}
+              return (
+                <Combobox
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  items={options}
+                >
+                  <ComboboxInput
+                    placeholder={input.placeholder}
+                    value={selectedItem?.label ?? field.value}
+                  />
+                  <ComboboxContent>
+                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(item) => {
+                        const label =
+                          typeof item === "object" ? item.label : item;
+                        const value =
+                          typeof item === "object" ? item.key : item;
+
+                        return (
+                          <ComboboxItem key={value} value={value}>
+                            {label}
+                          </ComboboxItem>
+                        );
+                      }}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              );
+            }}
           />
         )}
       </div>
