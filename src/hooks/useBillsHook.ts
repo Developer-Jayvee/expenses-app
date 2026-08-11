@@ -4,7 +4,7 @@ import {
   type FrequencyTypes,
   type PostBillDataI,
 } from "@c/types/billsTypes";
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   createBills_API,
   deleteBill_API,
@@ -12,7 +12,6 @@ import {
   listBills_API,
   updateBill_API,
 } from "./api/bills/bills-api";
-import { useLocation } from "react-router";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 

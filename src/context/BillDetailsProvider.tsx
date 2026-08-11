@@ -1,7 +1,7 @@
 import type { PostBillDataI } from "@c/types/billsTypes";
 import { createContext, useState } from "react";
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
-import { getBill_API } from "@c/hooks/api/bills/bills-api";
+import useBillsHook from "@c/hooks/useBillsHook";
 
 interface ProviderI {
   children: React.ReactNode;
@@ -17,11 +17,11 @@ export const BillDetailContext = createContext<BillContextI | null>({
 export const useBillDetail = () =>
   useContextProvider<BillContextI>(BillDetailContext);
 export const BillContextProvider = ({ children }: ProviderI) => {
-  const [selectedExp, setSelectedExp] = useState<PostBillDataI | null>(null);
+  const { getBillData, selectedExp } = useBillsHook();
 
   const values: BillContextI = {
     details: selectedExp,
-    getCallback: async (id: string) => setSelectedExp(await getBill_API(id)),
+    getCallback: getBillData,
   };
   return (
     <ContextProvider<BillContextI | null>
