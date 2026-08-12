@@ -49,6 +49,7 @@ export interface BillFormI {
   description: string;
   frequency: FrequencyTypes;
   default_payment: "cash" | "gcash";
+  next_date_at?: string;
 }
 export interface BillDataI {
   name: string;

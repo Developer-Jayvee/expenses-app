@@ -67,11 +67,13 @@ export default function BillDetails() {
     register: LogRegister,
     setValue: LogSetValue,
     getValues: LogGetValues,
+    reset: LogReset,
   } = useForm<LogPaymentType>({
     resolver: zodResolver(logPaymentSchema),
     defaultValues: {
       payment_mode: "cash",
-      transaction_date: new Date().toISOString().split("T")[0],
+      transaction_date:
+        details?.next_date_at ?? new Date().toISOString().split("T")[0],
       notes: "",
     },
   });
@@ -98,6 +100,9 @@ export default function BillDetails() {
         };
         await createTransaction_API(data).then((result) => {
           if (result) {
+            if (id) {
+              getCallback(id);
+            }
             onClose();
           }
         });
@@ -114,6 +119,10 @@ export default function BillDetails() {
   useEffect(() => {
     if (details) {
       reset(details);
+      LogReset((rest) => ({
+        ...rest,
+        transaction_date: details?.next_date_at ?? "",
+      }));
     }
   }, [details, reset]);
 

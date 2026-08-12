@@ -5,6 +5,7 @@ import { IoPricetagOutline } from "react-icons/io5";
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
 import useReferenceHook from "@c/hooks/useReferenceHook";
+import { date_formatter } from "@c/utils/utilities.util";
 const DynamicDetails = ({ children, type, value }: DynamicDetailsI) => {
   return (
     <div className="flex gap-5 items-center ">
@@ -38,7 +39,14 @@ export default function BillDetailHeaders() {
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(300px_1fr))]">
         <div className="grid grid-cols-2 grid-rows-2">
-          <DynamicDetails type="Next Due Date" value="Sep 1, 2026">
+          <DynamicDetails
+            type="Next Due Date"
+            value={
+              details?.next_date_at
+                ? date_formatter(new Date(details?.next_date_at))
+                : ""
+            }
+          >
             <IoCalendarNumberOutline size={20} />
           </DynamicDetails>
           <DynamicDetails
