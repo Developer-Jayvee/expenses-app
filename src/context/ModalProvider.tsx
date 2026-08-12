@@ -8,11 +8,13 @@ import {
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
 import Modal from "@c/components/modals/Modal";
 
+type ModalSizes = "xl" | "lg" | "md" | "sm";
 interface ModalSettingI {
-  header?: string;
+  header?: string | React.ReactNode;
   type?: ModalTypes;
   content?: React.ReactNode | null;
   submitEvent?: () => void;
+  size?: ModalSizes;
 }
 interface ModalContextI {
   onOpen: () => void;
@@ -35,27 +37,32 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     type: "general",
     content: null,
     submitEvent: undefined,
+    size: "md",
   });
+
+  const configureSettings = ({
+    header,
+    type = "general",
+    content,
+    size = "md",
+    submitEvent = undefined,
+  }: ModalSettingI) => {
+    setModalSetting((prev) => ({
+      ...prev,
+      header,
+      type,
+      content,
+      size,
+      submitEvent,
+    }));
+  };
   const modalValue = useMemo<ModalContextI>(
     () => ({
       isOpen,
+      modalSetting,
       onClose: () => setIsModalOpen(false),
       onOpen: () => setIsModalOpen(true),
-      modalSetting,
-      configureModal: ({
-        header,
-        type = "general",
-        content,
-        submitEvent = undefined,
-      }: ModalSettingI) => {
-        setModalSetting((prev) => ({
-          ...prev,
-          header,
-          type,
-          content,
-          submitEvent,
-        }));
-      },
+      configureModal: configureSettings,
     }),
     [isOpen, modalSetting],
   );

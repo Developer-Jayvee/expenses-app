@@ -11,7 +11,7 @@ import {
   getBill_API,
   listBills_API,
   updateBill_API,
-} from "./api/bills/bills-api";
+} from "./api/bills-api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 

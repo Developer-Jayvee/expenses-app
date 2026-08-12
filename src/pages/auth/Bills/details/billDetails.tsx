@@ -15,9 +15,21 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DefaultModal } from "@c/components/modals/DefaultModal";
 import useBillsHook from "@c/hooks/useBillsHook";
 import BillForm from "../components/BillForm/billForm";
-import { updateBill_API } from "@c/hooks/api/bills/bills-api";
+import { updateBill_API } from "@c/hooks/api/bills-api";
 import { useModal } from "@c/context/ModalProvider";
 import PaymentLog from "../components/PaymentLog/paymentLog";
+import {
+  DialogDescription,
+  DialogTitle,
+} from "@c/lib/shadcn/components/ui/dialog";
+import { useForm } from "react-hook-form";
+import {
+  logPaymentSchema,
+  type ExtendedLogPayment,
+  type LogPaymentType,
+} from "@c/types/transactionTypes";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createTransaction_API } from "@c/hooks/api/transaction-api";
 // import { useBillDetail } from "@c/context/BillDetailsProvider";
 export interface DynamicDetailsI {
   children: React.ReactNode;
@@ -29,7 +41,16 @@ export interface KPICardI extends DynamicDetailsI {
   description: string;
   iconColor?: PillColor;
 }
-
+const LogPaymentHeader = () => {
+  return (
+    <>
+      <DialogTitle>Log Payment</DialogTitle>
+      <DialogDescription>
+        Record a payment to keep your transactions organized.
+      </DialogDescription>
+    </>
+  );
+};
 export default function BillDetails() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,13 +62,44 @@ export default function BillDetails() {
   const { register, reset, control, getValues, onDelete } = useBillsHook();
   const { onOpen, onClose, configureModal } = useModal();
 
+  const {
+    control: LogControl,
+    register: LogRegister,
+    setValue: LogSetValue,
+    getValues: LogGetValues,
+  } = useForm<LogPaymentType>({
+    resolver: zodResolver(logPaymentSchema),
+    defaultValues: {
+      payment_mode: "cash",
+      transaction_date: new Date().toISOString().split("T")[0],
+      notes: "",
+    },
+  });
+
   const handleLogPayment = () => {
     configureModal?.({
-      header: "Log Payment",
-      content: <PaymentLog />,
-      submitEvent: () => {
-        alert(1);
-        onClose();
+      header: <LogPaymentHeader />,
+      size: "lg",
+      content: (
+        <PaymentLog
+          control={LogControl}
+          register={LogRegister}
+          setValue={LogSetValue}
+        />
+      ),
+      submitEvent: async () => {
+        const data: ExtendedLogPayment = {
+          billsId: String(id),
+          amount: LogGetValues("amount"),
+          payment_mode: LogGetValues("payment_mode"),
+          transaction_date: LogGetValues("transaction_date"),
+          notes: LogGetValues("notes"),
+        };
+        await createTransaction_API(data).then((result) => {
+          if (result) {
+            onClose();
+          }
+        });
       },
     });
     onOpen();

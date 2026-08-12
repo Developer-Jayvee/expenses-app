@@ -1,5 +1,5 @@
 import type { PostBillDataI } from "@c/types/billsTypes";
-import { createContext } from "react";
+import { createContext, useMemo } from "react";
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
 import useBillsHook from "@c/hooks/useBillsHook";
 
@@ -18,11 +18,14 @@ export const useBillDetail = () =>
   useContextProvider<BillContextI>(BillDetailContext);
 export const BillContextProvider = ({ children }: ProviderI) => {
   const { getBillData, selectedExp } = useBillsHook();
-
-  const values: BillContextI = {
-    details: selectedExp,
-    getCallback: getBillData,
-  };
+  console.log(selectedExp);
+  const values: BillContextI = useMemo(
+    () => ({
+      details: selectedExp,
+      getCallback: getBillData,
+    }),
+    [selectedExp],
+  );
   return (
     <ContextProvider<BillContextI | null>
       context={BillDetailContext}

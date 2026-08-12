@@ -6,11 +6,10 @@ import {
   DialogContent,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
 
 interface ModalI {
-  header?: string;
+  header?: string | React.ReactNode;
   showCloseButton?: boolean;
 }
 export default function Modal({ showCloseButton = false }: ModalI) {
@@ -25,13 +24,14 @@ export default function Modal({ showCloseButton = false }: ModalI) {
         }
       }}
     >
-      <DialogContent showCloseButton={showCloseButton}>
+      <DialogContent
+        className={`flex max-h-[90vh] flex-col sm:max-w-${modalSetting?.size}`}
+        showCloseButton={showCloseButton}
+      >
         {modalSetting?.header && (
-          <DialogHeader>
-            <DialogTitle>{modalSetting?.header}</DialogTitle>
-          </DialogHeader>
+          <DialogHeader>{modalSetting?.header}</DialogHeader>
         )}
-        <div className="">
+        <div className="w-full">
           {ModalChildren || ""}
           <DialogFooter>
             <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
