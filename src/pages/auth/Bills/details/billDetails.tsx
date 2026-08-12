@@ -82,6 +82,7 @@ export default function BillDetails() {
       size: "lg",
       content: (
         <PaymentLog
+          details={details}
           control={LogControl}
           register={LogRegister}
           setValue={LogSetValue}
@@ -163,10 +164,6 @@ export default function BillDetails() {
             <CiEdit size={20} />
             Edit Bill
           </button>
-          {/* <button className="ghost-primary btn-flex">
-            <CiPause1 size={20} />
-            Pause
-          </button>*/}
           <button
             onClick={() => onDelete(id ?? null)}
             className="ghost-danger btn-flex"

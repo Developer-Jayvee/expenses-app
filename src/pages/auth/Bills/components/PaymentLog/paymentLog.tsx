@@ -1,7 +1,6 @@
 import FormControl from "@c/components/FormControl";
 import FormSelect from "@c/components/FormSelect";
 import { PaymentOptions } from "@c/data/options";
-import useBillsHook from "@c/hooks/useBillsHook";
 import {
   Field,
   FieldGroup,
@@ -9,6 +8,7 @@ import {
   FieldSet,
 } from "@c/lib/shadcn/components/ui/field";
 import { Input } from "@c/lib/shadcn/components/ui/input";
+import type { PostBillDataI } from "@c/types/billsTypes";
 import { useEffect } from "react";
 import { useParams } from "react-router";
 
@@ -16,24 +16,21 @@ export default function PaymentLog({
   control,
   register,
   setValue,
+  details,
 }: {
   control: any;
   register: any;
   setValue: any;
+  details: PostBillDataI | null;
 }) {
   const { id } = useParams();
-  const { selectedExp, getBillData } = useBillsHook();
   if (!id) return null;
 
   useEffect(() => {
-    getBillData(id);
-  }, [id]);
-
-  useEffect(() => {
-    if (selectedExp?.amount) {
-      setValue("amount", selectedExp.amount);
+    if (details?.amount) {
+      setValue("amount", details.amount);
     }
-  }, [selectedExp]);
+  }, [details]);
   return (
     <div className="w-auto mb-4">
       <FieldGroup>
