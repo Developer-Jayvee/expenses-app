@@ -7,37 +7,41 @@ import {
   TableHeader,
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
+import type { TransactionResourceI } from "@c/types/transactionTypes";
 
-export default function TransactionTable() {
+interface TransactionsTableI<T = TransactionResourceI[] | null> {
+  list: T;
+}
+export default function TransactionTable({ list }: TransactionsTableI) {
   return (
-    <div className="w-full">
-      <h3 className="font-bold px-3">Transactions</h3>
-      <div>
-        <div>{/* <input type="search" /> */}</div>
-      </div>
-      <div className="mt-4">
-        <Table>
-          <TableCaption>A list of your recent invoices.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-25">Date</TableHead>
-              <TableHead className="w-37.5">Amount</TableHead>
-              <TableHead className="w-25">Method</TableHead>
-              <TableHead className="text-right w-35">Status</TableHead>
-              <TableHead className="text-center">Reference</TableHead>
-              <TableHead className="text-center"></TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-25 text-center">Date</TableHead>
+          <TableHead className="w-37.5 text-center">Amount</TableHead>
+          <TableHead className="w-25 text-center">Method</TableHead>
+          <TableHead className="text-center w-35 ">Status</TableHead>
+          <TableHead className="text-center">Reference</TableHead>
+          <TableHead className="text-center"></TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {list &&
+          list.map((data, index: number) => (
+            <TableRow key={index}>
+              <TableCell className="font-medium text-center">
+                {data?.transaction_date}
+              </TableCell>
+              <TableCell className=" text-center">Php {data?.amount}</TableCell>
+              <TableCell className="text-center">
+                {data?.payment_mode?.label}
+              </TableCell>
+              <TableCell className="text-center">PAID</TableCell>
+              <TableCell className="text-center"></TableCell>
+              <TableCell className="text-center"></TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">INV001</TableCell>
-              <TableCell>Paid</TableCell>
-              <TableCell>Credit Card</TableCell>
-              <TableCell className="text-right">$250.00</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-    </div>
+          ))}
+      </TableBody>
+    </Table>
   );
 }

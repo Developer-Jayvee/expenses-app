@@ -57,10 +57,6 @@ const Router = createBrowserRouter([
         path: "bills/:id",
         element: <BillDetailsLayout />,
         children: [
-          // {
-          //   index:true,
-          //   element: <Navigate to="transaction" replace/>
-          // },
           {
             path: "transactions",
             element: <BillTransactions />,

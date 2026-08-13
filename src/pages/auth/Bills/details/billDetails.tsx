@@ -2,6 +2,7 @@ import { MdOutlineArrowBack } from "react-icons/md";
 import {
   NavLink,
   Outlet,
+  replace,
   useLocation,
   useNavigate,
   useParams,
@@ -30,6 +31,7 @@ import {
 } from "@c/types/transactionTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTransaction_API } from "@c/hooks/api/transaction-api";
+import useTransactionHook from "@c/hooks/useTransactionHook";
 // import { useBillDetail } from "@c/context/BillDetailsProvider";
 export interface DynamicDetailsI {
   children: React.ReactNode;
@@ -102,6 +104,9 @@ export default function BillDetails() {
           if (result) {
             if (id) {
               getCallback(id);
+              navigate("transactions", {
+                replace: true,
+              });
             }
             onClose();
           }
@@ -121,6 +126,7 @@ export default function BillDetails() {
       reset(details);
       LogReset((rest) => ({
         ...rest,
+        payment_mode: details?.default_payment ?? "cash",
         transaction_date: details?.next_date_at ?? "",
       }));
     }

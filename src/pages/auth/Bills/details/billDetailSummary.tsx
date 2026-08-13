@@ -48,14 +48,6 @@ const KPICard = ({
 export default function BillDetailSummary() {
   return (
     <div className="border border-gray-500 rounded-md p-4 mt-5 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
-      <KPICard
-        iconColor="danger"
-        type="Current Balance"
-        value="P 2,000"
-        description="Amount Due"
-      >
-        <IoWalletOutline size={30} />
-      </KPICard>
       <KPICard type="Total Paid" value="P 22,000" description="All time">
         <CiReceipt size={30} />
       </KPICard>

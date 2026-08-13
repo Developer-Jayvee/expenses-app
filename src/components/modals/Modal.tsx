@@ -15,6 +15,8 @@ interface ModalI {
 export default function Modal({ showCloseButton = false }: ModalI) {
   const { isOpen, onClose, modalSetting } = useModal();
   const ModalChildren = modalSetting?.content;
+
+  if (!modalSetting?.content) return null;
   return (
     <Dialog
       open={isOpen}
