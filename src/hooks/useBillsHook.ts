@@ -14,6 +14,7 @@ import {
 } from "./api/bills-api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import type { DefaultResponseI } from "@c/types/globalTypes";
 
 export default function useBillsHook() {
   const [billList, setBillList] = useState<Array<PostBillDataI> | []>([]);
@@ -44,9 +45,15 @@ export default function useBillsHook() {
 
   const fetchList = async () => setBillList(await listBills_API());
 
-  const onDelete = async (id: string | null) => {
-    if (!id) return false;
-    await deleteBill_API(id).then(() => fetchList());
+  const onDelete = async (
+    id: string | null,
+  ): Promise<DefaultResponseI | null> => {
+    if (!id) return null;
+    const response = await deleteBill_API(id);
+    if (response.status) {
+      await fetchList();
+    }
+    return response;
   };
 
   const onOpenUpdate = (id: string) => {

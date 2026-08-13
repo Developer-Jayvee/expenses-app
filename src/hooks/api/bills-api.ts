@@ -1,6 +1,5 @@
 import http from "@c/configs/axiosHttp";
 import type {
-  BillDataI,
   BillFormI,
   billSchema,
   PostBillDataI,

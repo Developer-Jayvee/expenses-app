@@ -1,5 +1,6 @@
 import { MdOutlineArrowBack } from "react-icons/md";
 import {
+  Navigate,
   NavLink,
   Outlet,
   useLocation,
@@ -72,6 +73,22 @@ export default function BillDetails() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const formRef = useRef(null);
 
+  const confirmDelete = () => {
+    configureModal?.({
+      size: "md",
+      type: "confirm",
+      title: "Are you sure you want to delete this bill?",
+      description: "This will deleted the bill permanently.",
+      submitEvent: () => {
+        onDelete(id ?? null).then((result) => {
+          if (result?.status) {
+            navigate("/expense/bills", { replace: true });
+          }
+        });
+      },
+    });
+    onOpen();
+  };
   const handleLogPayment = () => {
     configureModal?.({
       header: <LogPaymentHeader />,
@@ -173,7 +190,7 @@ export default function BillDetails() {
             Edit Bill
           </button>
           <button
-            onClick={() => onDelete(id ?? null)}
+            onClick={() => confirmDelete()}
             className="ghost-danger btn-flex"
           >
             <CiTrash size={20} />

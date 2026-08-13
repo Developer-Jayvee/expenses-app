@@ -4,19 +4,20 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
 
-interface ModalI {
+interface ModalConfirmI {
   header?: string | React.ReactNode;
   showCloseButton?: boolean;
 }
-export default function Modal({ showCloseButton = false }: ModalI) {
+export default function ModalConfirm({
+  showCloseButton = false,
+}: ModalConfirmI) {
   const { isOpen, onClose, modalSetting } = useModal();
-  const ModalChildren = modalSetting?.content;
-
-  if (!modalSetting?.content) return null;
 
   const modalSizes = {
     sm: "sm:max-w-sm",
@@ -37,11 +38,15 @@ export default function Modal({ showCloseButton = false }: ModalI) {
         className={`flex max-h-[90vh] flex-col ${modalSizes[modalSetting?.size ?? "md"]}`}
         showCloseButton={showCloseButton}
       >
-        {modalSetting?.header && (
-          <DialogHeader>{modalSetting?.header}</DialogHeader>
-        )}
+        <DialogHeader>
+          {modalSetting?.title && (
+            <DialogTitle>{modalSetting?.title}</DialogTitle>
+          )}
+          {modalSetting?.description && (
+            <DialogDescription>{modalSetting?.description}</DialogDescription>
+          )}
+        </DialogHeader>
         <div className="w-full">
-          {ModalChildren || ""}
           <DialogFooter>
             <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
               <DialogClose
@@ -65,7 +70,7 @@ export default function Modal({ showCloseButton = false }: ModalI) {
                   }}
                 >
                   {" "}
-                  Submit
+                  Proceed
                 </Button>
               )}
             </div>

@@ -7,10 +7,13 @@ import {
 } from "react";
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
 import Modal from "@c/components/modals/Modal";
+import ModalConfirm from "@c/components/modals/ModalConfirm";
 
 type ModalSizes = "xl" | "lg" | "md" | "sm";
 interface ModalSettingI {
   header?: string | React.ReactNode;
+  title?: string;
+  description?: string;
   type?: ModalTypes;
   content?: React.ReactNode | null;
   submitEvent?: () => void;
@@ -22,7 +25,13 @@ interface ModalContextI {
   isOpen?: boolean;
   setIsModalOpen?: Dispatch<SetStateAction<boolean>>;
   showCloseButton?: (show: boolean) => void;
-  configureModal?: ({ header, type, content }: ModalSettingI) => void;
+  configureModal?: ({
+    header,
+    title,
+    description,
+    type,
+    content,
+  }: ModalSettingI) => void;
   modalSetting?: ModalSettingI;
 }
 type ModalTypes = "general" | "confirm";
@@ -44,6 +53,8 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     header,
     type = "general",
     content,
+    title,
+    description,
     size = "md",
     submitEvent = undefined,
   }: ModalSettingI) => {
@@ -54,6 +65,8 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       content,
       size,
       submitEvent,
+      title,
+      description,
     }));
   };
   const modalValue = useMemo<ModalContextI>(
@@ -66,14 +79,22 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     }),
     [isOpen, modalSetting],
   );
-
+  let selectedModal = null;
+  switch (modalSetting.type) {
+    case "general":
+      selectedModal = <Modal />;
+      break;
+    case "confirm":
+      selectedModal = <ModalConfirm />;
+      break;
+  }
   return (
     <ContextProvider<ModalContextI | null>
       context={ModalContext}
       values={modalValue}
     >
       <>{children}</>
-      {modalSetting.type === "general" ? <Modal /> : <></>}
+      {selectedModal || ""}
     </ContextProvider>
   );
 };
