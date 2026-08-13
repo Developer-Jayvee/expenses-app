@@ -18,7 +18,6 @@ export const useBillDetail = () =>
   useContextProvider<BillContextI>(BillDetailContext);
 export const BillContextProvider = ({ children }: ProviderI) => {
   const { getBillData, selectedExp } = useBillsHook();
-  console.log(selectedExp);
   const values: BillContextI = useMemo(
     () => ({
       details: selectedExp,

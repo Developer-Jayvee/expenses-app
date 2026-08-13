@@ -49,9 +49,6 @@ export default function ConfirmModal({
       setIsModalOpen(false);
     }
   };
-  useEffect(() => {
-    console.log(isModalOpen);
-  }, [isModalOpen]);
   useEffect(() => setIsModalOpen(isOpen), [isOpen]);
 
   return (
