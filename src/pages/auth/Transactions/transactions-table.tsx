@@ -1,17 +1,13 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
-import type { TransactionResourceI } from "@c/types/transactionTypes";
+import type { TransactionsTableI } from "@c/types/transactionTypes";
 
-interface TransactionsTableI<T = TransactionResourceI[] | null> {
-  list: T;
-}
 export default function TransactionTable({ list }: TransactionsTableI) {
   return (
     <Table>

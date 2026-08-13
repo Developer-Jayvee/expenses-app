@@ -2,7 +2,6 @@ import { MdOutlineArrowBack } from "react-icons/md";
 import {
   NavLink,
   Outlet,
-  replace,
   useLocation,
   useNavigate,
   useParams,
@@ -32,17 +31,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTransaction_API } from "@c/hooks/api/transaction-api";
 import useTransactionHook from "@c/hooks/useTransactionHook";
-// import { useBillDetail } from "@c/context/BillDetailsProvider";
-export interface DynamicDetailsI {
-  children: React.ReactNode;
-  type: string;
-  value: string;
-}
-export type PillColor = "primary" | "danger" | "warning";
-export interface KPICardI extends DynamicDetailsI {
-  description: string;
-  iconColor?: PillColor;
-}
+import { url_search } from "@c/utils/utilities.util";
+
 const LogPaymentHeader = () => {
   return (
     <>
@@ -56,13 +46,12 @@ const LogPaymentHeader = () => {
 export default function BillDetails() {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { id } = useParams();
+
   const { details, getCallback } = useBillDetail();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const formRef = useRef(null);
   const { register, reset, control, getValues, onDelete } = useBillsHook();
   const { onOpen, onClose, configureModal } = useModal();
+  const { resource, getTransactions } = useTransactionHook();
 
   const {
     control: LogControl,
@@ -79,6 +68,9 @@ export default function BillDetails() {
       notes: "",
     },
   });
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const formRef = useRef(null);
 
   const handleLogPayment = () => {
     configureModal?.({
@@ -104,9 +96,7 @@ export default function BillDetails() {
           if (result) {
             if (id) {
               getCallback(id);
-              navigate("transactions", {
-                replace: true,
-              });
+              getTransactions(id);
             }
             onClose();
           }
@@ -118,6 +108,9 @@ export default function BillDetails() {
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
+      if (url_search(location.pathname, "transactions")) {
+        getTransactions(id);
+      }
     }
   }, [location.pathname]);
 
@@ -211,7 +204,11 @@ export default function BillDetails() {
       </div>
       {/* ACTIVITIES */}
       <div className="mt-4">
-        <Outlet />
+        <Outlet
+          context={{
+            list: resource,
+          }}
+        />
       </div>
 
       <DefaultModal

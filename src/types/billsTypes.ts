@@ -86,3 +86,16 @@ export const billSchema = z.object({
   frequency: FrequencySchema,
   default_payment: z.enum(["gcash", "cash"]),
 });
+
+export type PillColor = "primary" | "danger" | "warning";
+
+export interface DynamicDetailsI {
+  children: React.ReactNode;
+  type: string;
+  value: string;
+}
+
+export interface KPICardI extends DynamicDetailsI {
+  description: string;
+  iconColor?: PillColor;
+}

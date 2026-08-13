@@ -1,8 +1,7 @@
-import type { KPICardI, PillColor } from "./billDetails";
-import { IoWalletOutline } from "react-icons/io5";
 import { CiReceipt } from "react-icons/ci";
 import { AiOutlinePieChart } from "react-icons/ai";
 import { LuCalendarRange } from "react-icons/lu";
+import type { KPICardI, PillColor } from "@c/types/billsTypes";
 
 const pillColor: Record<PillColor, { bg: string; color: string }> = {
   primary: {

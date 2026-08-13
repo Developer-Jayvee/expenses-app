@@ -1,4 +1,3 @@
-import type { DynamicDetailsI } from "./billDetails";
 import { RiResetRightFill } from "react-icons/ri";
 import { FaRegCreditCard } from "react-icons/fa6";
 import { IoPricetagOutline } from "react-icons/io5";
@@ -6,6 +5,8 @@ import { IoCalendarNumberOutline } from "react-icons/io5";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
 import useReferenceHook from "@c/hooks/useReferenceHook";
 import { date_formatter } from "@c/utils/utilities.util";
+import type { DynamicDetailsI } from "@c/types/billsTypes";
+
 const DynamicDetails = ({ children, type, value }: DynamicDetailsI) => {
   return (
     <div className="flex gap-5 items-center ">

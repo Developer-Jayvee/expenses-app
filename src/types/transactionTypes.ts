@@ -31,3 +31,10 @@ export type LogPaymentType = z.infer<typeof logPaymentSchema>;
 export interface ExtendedLogPayment extends LogPaymentType {
   billsId: string;
 }
+
+export interface TransactionsTableI<T = TransactionResourceI[] | null> {
+  list: T;
+}
+export interface TransactionOutletI {
+  list: TransactionResourceI[] | null;
+}

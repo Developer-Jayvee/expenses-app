@@ -1,17 +1,9 @@
-import { useParams } from "react-router";
+import { useOutletContext } from "react-router";
 import TransactionTable from "../../Transactions/transactions-table";
-import useTransactionHook from "@c/hooks/useTransactionHook";
-import { useEffect } from "react";
+import type { TransactionOutletI } from "@c/types/transactionTypes";
 
 export default function BillTransactions() {
-  const { id } = useParams();
-  if (!id) return null;
-
-  const { resource, getTransactions } = useTransactionHook();
-
-  useEffect(() => {
-    if (id) getTransactions(id);
-  }, [id]);
+  const { list: resource } = useOutletContext<TransactionOutletI>();
   return (
     <div className="w-full">
       <h3 className="font-bold px-3">Transactions</h3>
