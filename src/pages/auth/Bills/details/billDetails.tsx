@@ -11,8 +11,7 @@ import BillDetailSummary from "./billDetailSummary";
 import { LiaWalletSolid } from "react-icons/lia";
 import { CiEdit, CiTrash } from "react-icons/ci";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
-import { useEffect, useRef, useState, type FormEvent } from "react";
-import useBillsHook from "@c/hooks/useBillsHook";
+import { useEffect, type FormEvent } from "react";
 import { updateBill_API } from "@c/hooks/api/bills-api";
 import { useModal } from "@c/context/ModalProvider";
 import PaymentLog from "../components/PaymentLog/paymentLog";
@@ -30,6 +29,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createTransaction_API } from "@c/hooks/api/transaction-api";
 import useTransactionHook from "@c/hooks/useTransactionHook";
 import { url_search } from "@c/utils/utilities.util";
+import { useBillContext } from "@c/context/BillsProvider";
 
 const LogPaymentHeader = () => {
   return (
@@ -47,7 +47,7 @@ export default function BillDetails() {
   const { id } = useParams();
 
   const { details, getCallback } = useBillDetail();
-  const { register, reset, control, getValues, onDelete } = useBillsHook();
+  const { formMethod, onDelete } = useBillContext();
   const { onOpen, onClose, configureModal } = useModal();
   const { resource, getTransactions } = useTransactionHook();
 
@@ -67,9 +67,6 @@ export default function BillDetails() {
     },
   });
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const formRef = useRef(null);
-
   const confirmDelete = () => {
     configureModal?.({
       size: "md",
@@ -77,11 +74,13 @@ export default function BillDetails() {
       title: "Are you sure you want to delete this bill?",
       description: "This will deleted the bill permanently.",
       submitEvent: () => {
-        onDelete(id ?? null).then((result) => {
-          if (result?.status) {
-            navigate("/expense/bills", { replace: true });
-          }
-        });
+        if (id) {
+          onDelete(id ?? null).then((result) => {
+            if (result?.status) {
+              navigate("/expense/bills", { replace: true });
+            }
+          });
+        }
       },
     });
     onOpen();
@@ -119,6 +118,16 @@ export default function BillDetails() {
     });
     onOpen();
   };
+  const handleUpdate = () => {
+    configureModal?.({
+      type: "general",
+      content: <></>,
+      size: "xl",
+      showFooter: false,
+      header: <></>,
+    });
+    onOpen();
+  };
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
@@ -130,25 +139,26 @@ export default function BillDetails() {
 
   useEffect(() => {
     if (details) {
-      reset(details);
+      formMethod?.reset(details);
       LogReset((rest) => ({
         ...rest,
         payment_mode: details?.default_payment ?? "cash",
         transaction_date: details?.next_date_at ?? "",
       }));
     }
-  }, [details, reset]);
+  }, [details, formMethod?.reset]);
 
   if (details === null) return null;
 
   const onUpdate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!id) return false;
-    const response = await updateBill_API(id, getValues());
+    if (!id || !formMethod) return false;
+    const values = formMethod.getValues();
+
+    const response = await updateBill_API(id, values);
     if (response) {
       getCallback(id);
       alert("Successfully updated");
-      setIsModalOpen(false);
     }
   };
 
@@ -181,7 +191,7 @@ export default function BillDetails() {
           <button
             className="ghost-primary btn-flex"
             disabled={details === null}
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => handleUpdate()}
           >
             <CiEdit size={20} />
             Edit Bill

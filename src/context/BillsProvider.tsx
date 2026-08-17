@@ -1,6 +1,6 @@
 import useBillsHook from "@c/hooks/useBillsHook";
 import type { billSchema, PostBillDataI } from "@c/types/billsTypes";
-import type { ErrorResponseI } from "@c/types/globalTypes";
+import type { DefaultResponseI, ErrorResponseI } from "@c/types/globalTypes";
 import {
   createContext,
   useEffect,
@@ -11,6 +11,7 @@ import {
 import type {
   Control,
   FieldErrors,
+  FieldValues,
   UseFormHandleSubmit,
   UseFormRegister,
   UseFormReturn,
@@ -21,20 +22,20 @@ import type z from "zod";
 import { useContextProvider } from "./BaseContextProvider";
 
 export type BillFormSchema = z.infer<typeof billSchema>;
-interface BillsContextI {
+interface BillsContextI<T extends FieldValues = BillFormSchema> {
   bills: Array<PostBillDataI> | [];
   register: UseFormRegister<BillFormSchema> | null;
   handleSubmit: UseFormHandleSubmit<BillFormSchema> | null;
   onSubmit: (data: BillFormSchema) => void;
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  onDelete: (id: string) => void;
+  onDelete: (id: string) => Promise<DefaultResponseI | null>;
   onOpenUpdate: (id: string) => void;
   control: Control<BillFormSchema> | null;
   billFormErrors?: FieldErrors<BillFormSchema>;
   trigger?: UseFormTrigger<BillFormSchema>;
   errorList: ErrorResponseI;
-  formMethod: UseFormReturn<BillFormSchema> | null;
+  formMethod: UseFormReturn<T> | null;
 }
 interface BillsProviderI {
   children: React.ReactNode;
@@ -47,7 +48,7 @@ export const BillsContext = createContext<BillsContextI | null>({
   onSubmit: async () => false,
   isModalOpen: false,
   setIsModalOpen: () => false,
-  onDelete: () => false,
+  onDelete: async () => null,
   onOpenUpdate: () => false,
   control: null,
   errorList: null,

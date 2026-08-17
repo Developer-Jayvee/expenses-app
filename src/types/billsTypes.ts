@@ -39,7 +39,7 @@ export type FrequencyTypes = "monthly" | "yearly" | "daily" | "once";
 export const FrequencySchema = z.enum(["monthly", "yearly", "daily", "once"]);
 export interface BillFormI {
   name: string;
-  amount: number;
+  amount: string;
   billing_date: string;
   end_date: string;
   status: BillStatusT;
