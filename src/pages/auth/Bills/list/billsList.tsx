@@ -20,7 +20,14 @@ const CreateForm = () => {
     </FormProvider>
   );
 };
-
+const CreateFormHeader = () => {
+  return (
+    <>
+      <DialogTitle>Create new Bill</DialogTitle>
+      <DialogDescription>Create new bill data here.</DialogDescription>
+    </>
+  );
+};
 export default function BillsList() {
   const { configureModal, onOpen } = useModal();
   const handleCreate = () => {
@@ -29,12 +36,7 @@ export default function BillsList() {
       content: <CreateForm />,
       size: "xl",
       showFooter: false,
-      header: (
-        <>
-          <DialogTitle>Create new Bill</DialogTitle>
-          <DialogDescription>Create new bill data here.</DialogDescription>
-        </>
-      ),
+      header: <CreateFormHeader />,
     });
     onOpen();
   };
