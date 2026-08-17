@@ -1,6 +1,8 @@
 import z from "zod";
 import type { UserInterface } from "./login-types";
 
+export const TRANSACTION_DELETE_WINDOW_MS = 10000;
+
 export interface TransactionDataI {
   amount: number;
   payment_mode: "gcash" | "cash";
@@ -21,6 +23,7 @@ export interface TransactionResourceI {
   order: number;
   notes: string | null;
   transaction_date: string;
+  created_at: string;
 }
 export const logPaymentSchema = z.object({
   amount: z.number(),
@@ -36,8 +39,10 @@ export interface ExtendedLogPayment extends LogPaymentType {
 export interface TransactionsTableI<T = TransactionResourceI[] | null> {
   list: T;
   onDelete?: (transaction: TransactionResourceI) => void;
+  pendingDeleteIds?: Set<string | number>;
 }
 export interface TransactionOutletI {
   list: TransactionResourceI[] | null;
   onDelete: (transaction: TransactionResourceI) => void;
+  pendingDeleteIds: Set<string | number>;
 }

@@ -92,7 +92,8 @@ export default function BillDetails() {
   const { formMethod, onDelete } = useBillContext();
   const { onOpen, configureModal } = useModal();
   const { showUndoToast, showToast } = useToast();
-  const { resource, getTransactions, deleteTransaction } = useTransactionHook();
+  const { resource, pendingDeleteIds, getTransactions, deleteTransaction } =
+    useTransactionHook();
 
   const {
     control: LogControl,
@@ -296,6 +297,7 @@ export default function BillDetails() {
             list: resource,
             onDelete: (transaction: TransactionResourceI) =>
               deleteTransaction(transaction, showUndoToast),
+            pendingDeleteIds,
           }}
         />
       </div>
