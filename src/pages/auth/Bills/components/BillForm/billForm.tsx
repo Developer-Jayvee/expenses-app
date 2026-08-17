@@ -2,10 +2,10 @@ import { FieldGroup, FieldSeparator } from "@c/lib/shadcn/components/ui/field";
 import PaymentSettings from "./paymentSettings";
 import BillingDetails from "./billingDetails";
 import BillBasicInfo from "./billBasicInfo";
-import { useBillContext } from "@c/context/BillsProvider";
+import { useBillContext } from "@c/context/providers/BillsProvider";
 import { DestructiveAlert } from "@c/components/alerts/DestructiveAlert";
 import { Button } from "@c/lib/shadcn/components/ui/button";
-import { useModal } from "@c/context/ModalProvider";
+import { useModal } from "@c/context/providers/ModalProvider";
 
 export default function BillForm() {
   const { errorList } = useBillContext();

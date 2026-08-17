@@ -1,4 +1,4 @@
-import { useModal } from "@c/context/ModalProvider";
+import { useModal } from "@c/context/providers/ModalProvider";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 import {
   Dialog,

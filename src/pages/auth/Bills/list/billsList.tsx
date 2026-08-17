@@ -1,20 +1,26 @@
 import { BiPlus } from "react-icons/bi";
 import BillTable from "../components/bill-table";
 import BillForm from "../components/BillForm/billForm";
-import { useModal } from "@c/context/ModalProvider";
+import { useModal } from "@c/context/providers/ModalProvider";
 import {
   DialogDescription,
   DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
 import { FormProvider } from "react-hook-form";
-import { useBillContext } from "@c/context/BillsProvider";
+import { useBillContext } from "@c/context/providers/BillsProvider";
 
 const CreateForm = () => {
   const { formMethod, onSubmit, handleSubmit } = useBillContext();
+  const { onClose } = useModal();
   if (!formMethod) return null;
   return (
     <FormProvider {...formMethod}>
-      <form onSubmit={handleSubmit?.(onSubmit)}>
+      <form
+        onSubmit={handleSubmit?.(async (data) => {
+          const success = await onSubmit(data);
+          if (success) onClose();
+        })}
+      >
         <BillForm />
       </form>
     </FormProvider>

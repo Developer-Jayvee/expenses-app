@@ -1,7 +1,10 @@
 import { CiReceipt } from "react-icons/ci";
 import { AiOutlinePieChart } from "react-icons/ai";
 import { LuCalendarRange } from "react-icons/lu";
+import { useMemo } from "react";
 import type { KPICardI, PillColor } from "@c/types/billsTypes";
+import type { TransactionResourceI } from "@c/types/transactionTypes";
+import { date_formatter } from "@c/utils/utilities.util";
 
 const pillColor: Record<PillColor, { bg: string; color: string }> = {
   primary: {
@@ -44,15 +47,44 @@ const KPICard = ({
     </div>
   );
 };
-export default function BillDetailSummary() {
+interface BillDetailSummaryI {
+  transactions: TransactionResourceI[] | null;
+}
+
+export default function BillDetailSummary({
+  transactions,
+}: BillDetailSummaryI) {
+  const summary = useMemo(() => {
+    const list = transactions ?? [];
+    const totalPaid = list.reduce((sum, item) => sum + Number(item.amount), 0);
+    const lastPayment = [...list].sort(
+      (a, b) =>
+        new Date(b.transaction_date).getTime() -
+        new Date(a.transaction_date).getTime(),
+    )[0];
+
+    return {
+      totalPaid,
+      paymentsCount: list.length,
+      lastPaymentDate: lastPayment
+        ? date_formatter(new Date(lastPayment.transaction_date))
+        : "--",
+      lastPaymentMode: lastPayment ? lastPayment.payment_mode.label : "",
+    };
+  }, [transactions]);
+
   return (
     <div className="border border-gray-500 rounded-md p-4 mt-5 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
-      <KPICard type="Total Paid" value="P 22,000" description="All time">
+      <KPICard
+        type="Total Paid"
+        value={`P ${summary.totalPaid.toLocaleString()}`}
+        description="All time"
+      >
         <CiReceipt size={30} />
       </KPICard>
       <KPICard
         type="Payments"
-        value="P 21,000"
+        value={String(summary.paymentsCount)}
         description="Total Transactions"
       >
         <AiOutlinePieChart size={30} />
@@ -60,8 +92,12 @@ export default function BillDetailSummary() {
       <KPICard
         iconColor="warning"
         type="Last Payment"
-        value="Aug 01, 2026"
-        description="Via Gcash"
+        value={summary.lastPaymentDate}
+        description={
+          summary.lastPaymentMode
+            ? `Via ${summary.lastPaymentMode}`
+            : "No payments yet"
+        }
       >
         <LuCalendarRange size={30} />
       </KPICard>

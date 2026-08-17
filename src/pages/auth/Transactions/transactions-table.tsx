@@ -1,3 +1,4 @@
+import { Button } from "@c/lib/shadcn/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,8 +8,12 @@ import {
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
 import type { TransactionsTableI } from "@c/types/transactionTypes";
+import { CiTrash } from "react-icons/ci";
 
-export default function TransactionTable({ list }: TransactionsTableI) {
+export default function TransactionTable({
+  list,
+  onDelete,
+}: TransactionsTableI) {
   return (
     <Table>
       <TableHeader>
@@ -18,13 +23,13 @@ export default function TransactionTable({ list }: TransactionsTableI) {
           <TableHead className="w-25 text-center">Method</TableHead>
           <TableHead className="text-center w-35 ">Status</TableHead>
           <TableHead className="text-center">Reference</TableHead>
-          <TableHead className="text-center"></TableHead>
+          <TableHead className="text-center">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {list &&
-          list.map((data, index: number) => (
-            <TableRow key={index}>
+          list.map((data) => (
+            <TableRow key={data.id}>
               <TableCell className="font-medium text-center">
                 {data?.transaction_date}
               </TableCell>
@@ -34,7 +39,19 @@ export default function TransactionTable({ list }: TransactionsTableI) {
               </TableCell>
               <TableCell className="text-center">PAID</TableCell>
               <TableCell className="text-center"></TableCell>
-              <TableCell className="text-center"></TableCell>
+              <TableCell className="text-center">
+                {onDelete && (
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon-sm"
+                    title="Delete payment log"
+                    onClick={() => onDelete(data)}
+                  >
+                    <CiTrash size={16} />
+                  </Button>
+                )}
+              </TableCell>
             </TableRow>
           ))}
       </TableBody>

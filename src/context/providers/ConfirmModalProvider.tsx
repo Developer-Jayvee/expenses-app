@@ -1,7 +1,10 @@
 import ConfirmModal from "@c/components/modals/ConfirmModal";
 import useConfirmModal from "@c/hooks/useConfirmModal";
 import { useMemo } from "react";
-import { ConfirmModalContext, type ConfirmModalContextI } from "./ModalContext";
+import {
+  ConfirmModalContext,
+  type ConfirmModalContextI,
+} from "../ModalContext";
 
 interface ConfirmModalProviderI {
   children: React.ReactNode;

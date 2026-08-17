@@ -11,14 +11,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { DefaultResponseI, ErrorResponseI } from "@c/types/globalTypes";
 import { extractRawHttpError } from "@c/utils/axios-error.util";
-import type { BillFormSchema } from "@c/context/BillsProvider";
+import type { BillFormSchema } from "@c/context/providers/BillsProvider";
 
 export default function useBillsHook() {
   const [billList, setBillList] = useState<Array<PostBillDataI> | []>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [formData, setFormData] = useState<PostBillDataI | null>(null);
-  const [isUpdate, setIsUpdate] = useState<boolean>(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [, setSelectedId] = useState<string | null>(null);
   const [selectedExp, setSelectedExp] = useState<PostBillDataI | null>(null);
   const [errorList, setErrorList] = useState<ErrorResponseI>(null);
   const formMethod = useForm<BillFormSchema>({
@@ -65,37 +64,46 @@ export default function useBillsHook() {
   const onOpenUpdate = (id: string) => {
     const data = billList.find((item) => item?.id == id);
     if (!data) return false;
-    setIsUpdate(true);
     setFormData(data);
     setIsModalOpen(true);
     setSelectedId(id);
   };
 
-  const onSubmit = async (data: BillFormSchema) => {
+  const onSubmit = async (data: BillFormSchema): Promise<boolean> => {
+    let success = false;
     await createBills_API({
       ...data,
     })
       .then(async () => {
         await resetAll();
+        success = true;
       })
       .catch((err) => {
         const errors = extractRawHttpError(err);
         setErrorList(errors);
       });
-    setIsUpdate(false);
-  };
-  const handleUpdate = async () => {
-    if (!getValues()) return false;
-    if (!selectedId) return false;
-
-    await updateBill_API(selectedId, getValues()).then(async () => {
-      await resetAll();
-    });
+    return success;
   };
   const resetAll = async () => {
     setIsModalOpen(false);
     setSelectedId(null);
     await fetchList();
+  };
+
+  const onUpdate = async (
+    id: string,
+    data: BillFormSchema,
+  ): Promise<boolean> => {
+    let success = false;
+    await updateBill_API(id, data)
+      .then(() => {
+        success = true;
+      })
+      .catch((err) => {
+        const errors = extractRawHttpError(err);
+        setErrorList(errors);
+      });
+    return success;
   };
 
   return {
@@ -106,6 +114,7 @@ export default function useBillsHook() {
     register,
     control,
     onSubmit,
+    onUpdate,
     setIsModalOpen,
     isModalOpen,
     onDelete,

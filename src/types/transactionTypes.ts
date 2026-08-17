@@ -8,6 +8,7 @@ export interface TransactionDataI {
   notes: string | null;
 }
 export interface TransactionResourceI {
+  id: string | number;
   bills_id: string | number;
   user_id: string | number;
   user: UserInterface;
@@ -34,7 +35,9 @@ export interface ExtendedLogPayment extends LogPaymentType {
 
 export interface TransactionsTableI<T = TransactionResourceI[] | null> {
   list: T;
+  onDelete?: (transaction: TransactionResourceI) => void;
 }
 export interface TransactionOutletI {
   list: TransactionResourceI[] | null;
+  onDelete: (transaction: TransactionResourceI) => void;
 }

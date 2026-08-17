@@ -10,26 +10,28 @@ import BillDetailHeaders from "./billDetaillHeaders";
 import BillDetailSummary from "./billDetailSummary";
 import { LiaWalletSolid } from "react-icons/lia";
 import { CiEdit, CiTrash } from "react-icons/ci";
-import { useBillDetail } from "@c/context/BillDetailsProvider";
-import { useEffect, type FormEvent } from "react";
-import { updateBill_API } from "@c/hooks/api/bills-api";
-import { useModal } from "@c/context/ModalProvider";
+import { useBillDetail } from "@c/context/providers/BillDetailsProvider";
+import { useEffect } from "react";
+import { useModal } from "@c/context/providers/ModalProvider";
+import { useToast } from "@c/context/providers/ToastProvider";
 import PaymentLog from "../components/PaymentLog/paymentLog";
 import {
   DialogDescription,
   DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import {
   logPaymentSchema,
   type ExtendedLogPayment,
   type LogPaymentType,
+  type TransactionResourceI,
 } from "@c/types/transactionTypes";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTransaction_API } from "@c/hooks/api/transaction-api";
 import useTransactionHook from "@c/hooks/useTransactionHook";
-import { url_search } from "@c/utils/utilities.util";
-import { useBillContext } from "@c/context/BillsProvider";
+import { useBillContext } from "@c/context/providers/BillsProvider";
+import BillForm from "../components/BillForm/billForm";
+import { extractRawHttpError } from "@c/utils/axios-error.util";
 
 const LogPaymentHeader = () => {
   return (
@@ -41,6 +43,46 @@ const LogPaymentHeader = () => {
     </>
   );
 };
+
+const EditFormHeader = () => {
+  return (
+    <>
+      <DialogTitle>Edit Bill</DialogTitle>
+      <DialogDescription>Update this bill's details.</DialogDescription>
+    </>
+  );
+};
+
+const EditForm = ({ id, onUpdated }: { id: string; onUpdated: () => void }) => {
+  const { formMethod, onUpdate, handleSubmit } = useBillContext();
+  const { onClose } = useModal();
+  const { showToast } = useToast();
+  if (!formMethod) return null;
+  return (
+    <FormProvider {...formMethod}>
+      <form
+        onSubmit={handleSubmit?.(async (data) => {
+          const success = await onUpdate(id, data);
+          if (success) {
+            showToast({
+              message: "Bill updated successfully.",
+              variant: "success",
+            });
+            onUpdated();
+            onClose();
+          } else {
+            showToast({
+              message: "Failed to update bill. Please check the form.",
+              variant: "danger",
+            });
+          }
+        })}
+      >
+        <BillForm />
+      </form>
+    </FormProvider>
+  );
+};
 export default function BillDetails() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,8 +90,9 @@ export default function BillDetails() {
 
   const { details, getCallback } = useBillDetail();
   const { formMethod, onDelete } = useBillContext();
-  const { onOpen, onClose, configureModal } = useModal();
-  const { resource, getTransactions } = useTransactionHook();
+  const { onOpen, configureModal } = useModal();
+  const { showUndoToast, showToast } = useToast();
+  const { resource, getTransactions, deleteTransaction } = useTransactionHook();
 
   const {
     control: LogControl,
@@ -77,7 +120,16 @@ export default function BillDetails() {
         if (id) {
           onDelete(id ?? null).then((result) => {
             if (result?.status) {
+              showToast({
+                message: "Bill deleted successfully.",
+                variant: "success",
+              });
               navigate("/expense/bills", { replace: true });
+            } else {
+              showToast({
+                message: result?.message ?? "Failed to delete bill.",
+                variant: "danger",
+              });
             }
           });
         }
@@ -105,41 +157,64 @@ export default function BillDetails() {
           transaction_date: LogGetValues("transaction_date"),
           notes: LogGetValues("notes"),
         };
-        await createTransaction_API(data).then((result) => {
-          if (result) {
-            if (id) {
-              getCallback(id);
-              getTransactions(id);
+        await createTransaction_API(data)
+          .then((result) => {
+            if (result?.status) {
+              if (id) {
+                getCallback(id);
+                getTransactions(id);
+              }
+              showToast({
+                message: "Payment logged successfully.",
+                variant: "success",
+                action: {
+                  label: "View Transactions",
+                  onClick: () => navigate(`/expense/bills/${id}/transactions`),
+                },
+              });
+            } else {
+              showToast({
+                message: result?.message ?? "Failed to log payment.",
+                variant: "danger",
+              });
             }
-            onClose();
-          }
-        });
+          })
+          .catch((err) => {
+            const errors = extractRawHttpError(err);
+            showToast({
+              message: errors?.message ?? "Failed to log payment.",
+              variant: "danger",
+            });
+          });
       },
     });
     onOpen();
   };
   const handleUpdate = () => {
+    if (!id) return;
     configureModal?.({
       type: "general",
-      content: <></>,
+      content: <EditForm id={id} onUpdated={() => getCallback(id)} />,
       size: "xl",
       showFooter: false,
-      header: <></>,
+      header: <EditFormHeader />,
     });
     onOpen();
   };
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
-      if (url_search(location.pathname, "transactions")) {
-        getTransactions(id);
-      }
+      getTransactions(id);
     }
   }, [location.pathname]);
 
   useEffect(() => {
     if (details) {
-      formMethod?.reset(details);
+      formMethod?.reset({
+        ...details,
+        amount: String(details.amount),
+        is_autopay: Boolean(details.is_autopay),
+      });
       LogReset((rest) => ({
         ...rest,
         payment_mode: details?.default_payment ?? "cash",
@@ -149,18 +224,6 @@ export default function BillDetails() {
   }, [details, formMethod?.reset]);
 
   if (details === null) return null;
-
-  const onUpdate = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!id || !formMethod) return false;
-    const values = formMethod.getValues();
-
-    const response = await updateBill_API(id, values);
-    if (response) {
-      getCallback(id);
-      alert("Successfully updated");
-    }
-  };
 
   return (
     <div className="p-5">
@@ -206,7 +269,7 @@ export default function BillDetails() {
         </div>
       </div>
       {/* KPI */}
-      <BillDetailSummary />
+      <BillDetailSummary transactions={resource} />
       {/* TABS */}
       <div className="mt-5">
         <ul className="flex gap-4 border-0 border-b pb-4">
@@ -231,23 +294,11 @@ export default function BillDetails() {
         <Outlet
           context={{
             list: resource,
+            onDelete: (transaction: TransactionResourceI) =>
+              deleteTransaction(transaction, showUndoToast),
           }}
         />
       </div>
-
-      {/* <DefaultModal
-        isOpen={isModalOpen}
-        setIsOpen={setIsModalOpen}
-        onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
-        showCloseButton={false}
-        formProps={{
-          onSubmit: onUpdate,
-        }}
-        formRef={formRef}
-      >
-        <></>
-        <BillForm {...{ register, control }} />
-      </DefaultModal> */}
     </div>
   );
 }

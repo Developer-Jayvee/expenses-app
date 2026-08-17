@@ -26,7 +26,8 @@ interface BillsContextI<T extends FieldValues = BillFormSchema> {
   bills: Array<PostBillDataI> | [];
   register: UseFormRegister<BillFormSchema> | null;
   handleSubmit: UseFormHandleSubmit<BillFormSchema> | null;
-  onSubmit: (data: BillFormSchema) => void;
+  onSubmit: (data: BillFormSchema) => Promise<boolean>;
+  onUpdate: (id: string, data: BillFormSchema) => Promise<boolean>;
   isModalOpen: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   onDelete: (id: string) => Promise<DefaultResponseI | null>;
@@ -46,6 +47,7 @@ export const BillsContext = createContext<BillsContextI | null>({
   register: null,
   handleSubmit: null,
   onSubmit: async () => false,
+  onUpdate: async () => false,
   isModalOpen: false,
   setIsModalOpen: () => false,
   onDelete: async () => null,
@@ -66,6 +68,7 @@ export default function BillsProvider({ children }: BillsProviderI) {
     register,
     handleSubmit,
     onSubmit,
+    onUpdate,
     isModalOpen,
     setIsModalOpen,
     onDelete,
@@ -85,6 +88,7 @@ export default function BillsProvider({ children }: BillsProviderI) {
       register,
       handleSubmit,
       onSubmit,
+      onUpdate,
       isModalOpen,
       setIsModalOpen,
       onDelete,
@@ -114,8 +118,8 @@ export default function BillsProvider({ children }: BillsProviderI) {
         description: "",
         frequency: "monthly",
         category: "other",
-        billing_date: new Date("Y-m-d").toLocaleDateString(),
-        end_date: new Date().toLocaleDateString(),
+        billing_date: new Date().toISOString().split("T")[0],
+        end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
         default_payment: "cash",
       });
   }, [isModalOpen, reset]);

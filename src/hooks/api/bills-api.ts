@@ -1,5 +1,5 @@
 import http from "@c/configs/axiosHttp";
-import type { BillFormSchema } from "@c/context/BillsProvider";
+import type { BillFormSchema } from "@c/context/providers/BillsProvider";
 import type {
   billSchema,
   PostBillDataI,

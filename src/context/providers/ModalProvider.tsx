@@ -8,9 +8,12 @@ import {
 import { ContextProvider, useContextProvider } from "./BaseContextProvider";
 import Modal from "@c/components/modals/Modal";
 import ModalConfirm from "@c/components/modals/ModalConfirm";
+import type { FieldValues, UseFormReturn } from "react-hook-form";
+import type { BillFormSchema } from "./BillsProvider";
+import FormModalContext from "@c/components/modals/FormModalContext";
 
 type ModalSizes = "xl" | "lg" | "md" | "sm";
-interface ModalSettingI {
+interface ModalSettingI<T extends FieldValues = BillFormSchema> {
   header?: string | React.ReactNode;
   title?: string;
   description?: string;
@@ -19,6 +22,7 @@ interface ModalSettingI {
   submitEvent?: () => void;
   size?: ModalSizes;
   showFooter?: boolean;
+  useFormMethods?: UseFormReturn<T> | null;
 }
 interface ModalContextI {
   onOpen: () => void;
@@ -33,10 +37,11 @@ interface ModalContextI {
     type,
     content,
     showFooter,
+    useFormMethods,
   }: ModalSettingI) => void;
   modalSetting?: ModalSettingI;
 }
-type ModalTypes = "general" | "confirm";
+type ModalTypes = "general" | "confirm" | "form-context";
 export const ModalContext = createContext<ModalContextI | null>(null);
 
 export const useModal = () => useContextProvider<ModalContextI>(ModalContext);
@@ -51,7 +56,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     size: "md",
     showFooter: true,
   });
-
+  let selectedModal = null;
   const configureSettings = ({
     header,
     type = "general",
@@ -61,6 +66,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     size = "md",
     submitEvent = undefined,
     showFooter = true,
+    useFormMethods,
   }: ModalSettingI) => {
     setModalSetting((prev) => ({
       ...prev,
@@ -72,6 +78,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       title,
       description,
       showFooter,
+      useFormMethods,
     }));
   };
   const modalValue = useMemo<ModalContextI>(
@@ -84,7 +91,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     }),
     [isOpen, modalSetting],
   );
-  let selectedModal = null;
+
   switch (modalSetting.type) {
     case "general":
       selectedModal = <Modal />;
@@ -92,6 +99,8 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     case "confirm":
       selectedModal = <ModalConfirm />;
       break;
+    case "form-context":
+      selectedModal = <FormModalContext />;
   }
   return (
     <ContextProvider<ModalContextI | null>

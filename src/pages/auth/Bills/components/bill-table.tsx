@@ -1,4 +1,4 @@
-import { useBillContext } from "@c/context/BillsProvider";
+import { useBillContext } from "@c/context/providers/BillsProvider";
 import { useEffect, useState } from "react";
 import BillCard from "./bill-card";
 import { ModalContextService } from "@c/context/ModalContext";
