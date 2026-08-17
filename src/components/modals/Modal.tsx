@@ -15,7 +15,6 @@ interface ModalI {
 export default function Modal({ showCloseButton = false }: ModalI) {
   const { isOpen, onClose, modalSetting } = useModal();
   const ModalChildren = modalSetting?.content;
-
   if (!modalSetting?.content) return null;
 
   const modalSizes = {
@@ -40,36 +39,40 @@ export default function Modal({ showCloseButton = false }: ModalI) {
         {modalSetting?.header && (
           <DialogHeader>{modalSetting?.header}</DialogHeader>
         )}
-        <div className="w-full">
-          {ModalChildren || ""}
-          <DialogFooter>
-            <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
-              <DialogClose
-                render={
-                  <Button onClick={() => onClose()} variant="outline">
-                    Close
+        <div className="flex min-h-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto mb-4  p-4">
+            {ModalChildren || ""}
+          </div>
+          {modalSetting?.showFooter && (
+            <DialogFooter>
+              <div className="grid grid-cols-[auto_auto] place-content-end gap-2 mt-1">
+                <DialogClose
+                  render={
+                    <Button onClick={() => onClose()} variant="outline">
+                      Close
+                    </Button>
+                  }
+                />
+                {modalSetting?.submitEvent && (
+                  <Button
+                    className="px-6!"
+                    variant="primary"
+                    type="submit"
+                    onClick={() => {
+                      try {
+                        modalSetting?.submitEvent?.();
+                      } finally {
+                        onClose();
+                      }
+                    }}
+                  >
+                    {" "}
+                    Submit
                   </Button>
-                }
-              />
-              {modalSetting?.submitEvent && (
-                <Button
-                  className="px-6!"
-                  variant="primary"
-                  type="submit"
-                  onClick={() => {
-                    try {
-                      modalSetting?.submitEvent?.();
-                    } finally {
-                      onClose();
-                    }
-                  }}
-                >
-                  {" "}
-                  Submit
-                </Button>
-              )}
-            </div>
-          </DialogFooter>
+                )}
+              </div>
+            </DialogFooter>
+          )}
         </div>
       </DialogContent>
     </Dialog>

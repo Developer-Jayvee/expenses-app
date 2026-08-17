@@ -9,14 +9,9 @@ import { Label } from "@c/lib/shadcn/components/ui/label";
 import { Switch } from "@c/lib/shadcn/components/ui/switch";
 import { PaymentOptions, StatusOptions } from "@c/data/options";
 
-import { Controller } from "react-hook-form";
-export default function PaymentSettings({
-  register,
-  control,
-}: {
-  register: any;
-  control: any;
-}) {
+import { Controller, useFormContext } from "react-hook-form";
+export default function PaymentSettings() {
+  const { register, control } = useFormContext();
   return (
     <FieldSet>
       <FieldLegend>Payment Settings</FieldLegend>

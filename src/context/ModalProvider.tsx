@@ -18,6 +18,7 @@ interface ModalSettingI {
   content?: React.ReactNode | null;
   submitEvent?: () => void;
   size?: ModalSizes;
+  showFooter?: boolean;
 }
 interface ModalContextI {
   onOpen: () => void;
@@ -31,6 +32,7 @@ interface ModalContextI {
     description,
     type,
     content,
+    showFooter,
   }: ModalSettingI) => void;
   modalSetting?: ModalSettingI;
 }
@@ -47,6 +49,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     content: null,
     submitEvent: undefined,
     size: "md",
+    showFooter: true,
   });
 
   const configureSettings = ({
@@ -57,6 +60,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     description,
     size = "md",
     submitEvent = undefined,
+    showFooter = true,
   }: ModalSettingI) => {
     setModalSetting((prev) => ({
       ...prev,
@@ -67,6 +71,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       submitEvent,
       title,
       description,
+      showFooter,
     }));
   };
   const modalValue = useMemo<ModalContextI>(

@@ -1,4 +1,5 @@
 import AuthProvider from "@c/context/AuthProvider";
+import BillsProvider from "@c/context/BillsProvider";
 import ConfirmModalProvider from "@c/context/ConfirmModalProvider";
 import { ModalProvider } from "@c/context/ModalProvider";
 import { ReferenceContextProvider } from "@c/context/ReferenceProvider";
@@ -26,11 +27,13 @@ export default function Authenticated() {
     <ConfirmModalProvider>
       <AuthLayout>
         <AuthProvider>
-          <ModalProvider>
-            <ReferenceContextProvider>
-              <Outlet />
-            </ReferenceContextProvider>
-          </ModalProvider>
+          <BillsProvider>
+            <ModalProvider>
+              <ReferenceContextProvider>
+                <Outlet />
+              </ReferenceContextProvider>
+            </ModalProvider>
+          </BillsProvider>
         </AuthProvider>
       </AuthLayout>
     </ConfirmModalProvider>

@@ -5,7 +5,7 @@ export interface DefaultResponseI<R = Array<[]>, M = string> {
   message: M;
   status: boolean;
 }
-
+export type ErrorResponseI = DefaultResponseI<Record<string, string[]>> | null;
 export type OptionTypes = "category" | "payments";
 
 export interface ReferenceResponseI {

@@ -1,58 +1,61 @@
-import { useContext, useRef, type Dispatch, type SetStateAction } from "react";
 import { BiPlus } from "react-icons/bi";
-import { DefaultModal } from "@c/components/modals/DefaultModal";
 import BillTable from "../components/bill-table";
 import BillForm from "../components/BillForm/billForm";
-import { BillsContext } from "@c/context/BillsProvider";
+import { useModal } from "@c/context/ModalProvider";
+import {
+  DialogDescription,
+  DialogTitle,
+} from "@c/lib/shadcn/components/ui/dialog";
+import { FormProvider } from "react-hook-form";
+import { useBillContext } from "@c/context/BillsProvider";
 
-const Filters = ({
-  setIsOpen,
-}: {
-  setIsOpen: Dispatch<SetStateAction<boolean>>;
-}) => {
+const CreateForm = () => {
+  const { formMethod, onSubmit, handleSubmit } = useBillContext();
+  if (!formMethod) return null;
   return (
-    <div>
-      <button
-        type="button"
-        className="primary px-5!  flex gap-2 items-center justify-center"
-        onClick={() => setIsOpen(true)}
-      >
-        <BiPlus />
-        New Bill
-      </button>
-    </div>
+    <FormProvider {...formMethod}>
+      <form onSubmit={handleSubmit?.(onSubmit)}>
+        <BillForm />
+      </form>
+    </FormProvider>
   );
 };
 
 export default function BillsList() {
-  const { onSubmit, isModalOpen, setIsModalOpen, register, control } =
-    useContext(BillsContext);
-
-  const formRef = useRef<HTMLFormElement>(null);
+  const { configureModal, onOpen } = useModal();
+  const handleCreate = () => {
+    configureModal?.({
+      type: "general",
+      content: <CreateForm />,
+      size: "xl",
+      showFooter: false,
+      header: (
+        <>
+          <DialogTitle>Create new Bill</DialogTitle>
+          <DialogDescription>Create new bill data here.</DialogDescription>
+        </>
+      ),
+    });
+    onOpen();
+  };
   return (
     <div className="w-full h-full p-1 flex flex-col">
-      {/* Filters */}
       <div className="flex justify-end">
-        <Filters setIsOpen={setIsModalOpen} />
+        <div>
+          <button
+            type="button"
+            className="primary px-5!  flex gap-2 items-center justify-center"
+            onClick={handleCreate}
+          >
+            <BiPlus />
+            New Bill
+          </button>
+        </div>
       </div>
       {/* Table */}
       <div className="mt-4 h-150 ">
         <BillTable />
       </div>
-
-      {/* Global Modal  */}
-      <DefaultModal
-        isOpen={isModalOpen}
-        setIsOpen={setIsModalOpen}
-        onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
-        showCloseButton={false}
-        formProps={{
-          onSubmit: onSubmit,
-        }}
-        formRef={formRef}
-      >
-        <BillForm {...{ register, control }} />
-      </DefaultModal>
     </div>
   );
 }

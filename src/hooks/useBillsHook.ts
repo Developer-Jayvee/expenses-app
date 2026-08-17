@@ -1,10 +1,5 @@
-import {
-  billSchema,
-  type BillCategoryType,
-  type FrequencyTypes,
-  type PostBillDataI,
-} from "@c/types/billsTypes";
-import { useState, type FormEvent } from "react";
+import { billSchema, type PostBillDataI } from "@c/types/billsTypes";
+import { useState } from "react";
 import {
   createBills_API,
   deleteBill_API,
@@ -14,7 +9,9 @@ import {
 } from "./api/bills-api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { DefaultResponseI } from "@c/types/globalTypes";
+import type { DefaultResponseI, ErrorResponseI } from "@c/types/globalTypes";
+import { extractRawHttpError } from "@c/utils/axios-error.util";
+import type { BillFormSchema } from "@c/context/BillsProvider";
 
 export default function useBillsHook() {
   const [billList, setBillList] = useState<Array<PostBillDataI> | []>([]);
@@ -23,22 +20,31 @@ export default function useBillsHook() {
   const [isUpdate, setIsUpdate] = useState<boolean>(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedExp, setSelectedExp] = useState<PostBillDataI | null>(null);
-
-  const { handleSubmit, register, reset, control, getValues } = useForm({
+  const [errorList, setErrorList] = useState<ErrorResponseI>(null);
+  const formMethod = useForm<BillFormSchema>({
     resolver: zodResolver(billSchema),
     defaultValues: {
       name: "",
-      amount: 0,
+      amount: "0",
       status: "active",
       is_autopay: true,
       description: "",
+      category: "other",
       frequency: "monthly",
-      category: "",
-      billing_date: new Date("Y-m-d").toLocaleDateString(),
-      end_date: new Date().toLocaleDateString(),
+      billing_date: new Date().toISOString().split("T")[0],
+      end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
       default_payment: "cash",
     },
   });
+  const {
+    trigger,
+    handleSubmit,
+    register,
+    reset,
+    control,
+    getValues,
+    formState: { errors: billFormErrors },
+  } = formMethod;
   const getBillData = async (id: string) => {
     setSelectedExp(await getBill_API(id));
   };
@@ -65,30 +71,17 @@ export default function useBillsHook() {
     setSelectedId(id);
   };
 
-  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!isUpdate) setIsUpdate(false);
-    const formData = new FormData(event.currentTarget);
-    if (isUpdate) {
-      return handleUpdate();
-    }
+  const onSubmit = async (data: BillFormSchema) => {
     await createBills_API({
-      ...{
-        name: String(formData.get("name")) as string,
-        amount: Number(formData.get("amount")),
-        billing_date: String(formData.get("billing_date")),
-        end_date: String(formData.get("end_date")),
-        status: getValues("status"),
-        frequency: getValues("frequency") as FrequencyTypes,
-        category: getValues("category") as BillCategoryType,
-        is_autopay: getValues("is_autopay"),
-        description: formData.get("description") as string,
-        default_payment: getValues("default_payment"),
-      },
-    }).then(async () => {
-      await fetchList();
-      await resetAll();
-    });
+      ...data,
+    })
+      .then(async () => {
+        await resetAll();
+      })
+      .catch((err) => {
+        const errors = extractRawHttpError(err);
+        setErrorList(errors);
+      });
     setIsUpdate(false);
   };
   const handleUpdate = async () => {
@@ -96,7 +89,6 @@ export default function useBillsHook() {
     if (!selectedId) return false;
 
     await updateBill_API(selectedId, getValues()).then(async () => {
-      await fetchList();
       await resetAll();
     });
   };
@@ -123,5 +115,9 @@ export default function useBillsHook() {
     selectedExp,
     reset,
     getValues,
+    billFormErrors,
+    errorList,
+    trigger,
+    formMethod,
   };
 }

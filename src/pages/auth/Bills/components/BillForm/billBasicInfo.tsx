@@ -1,5 +1,8 @@
-import FormControl from "@c/components/FormControl";
+import FormControlField from "@c/components/FormControlField";
 import FormSelect from "@c/components/FormSelect";
+import { useBillContext } from "@c/context/BillsProvider";
+import { useReferenceProvider } from "@c/context/ReferenceProvider";
+import useReferenceHook from "@c/hooks/useReferenceHook";
 import {
   FieldDescription,
   FieldGroup,
@@ -7,16 +10,20 @@ import {
   FieldSet,
 } from "@c/lib/shadcn/components/ui/field";
 import { Textarea } from "@c/lib/shadcn/components/ui/textarea";
+import { useEffect } from "react";
+import { useFormContext } from "react-hook-form";
 
-const BillBasicInfo = ({
-  register,
-  control,
-  references,
-}: {
-  register: any;
-  control: any;
-  references: any;
-}) => {
+const BillBasicInfo = () => {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext();
+  const { references } = useReferenceHook();
+  const { errorList } = useBillContext();
+  useEffect(() => {
+    console.log(errors);
+  }, [errors]);
   return (
     <FieldSet>
       <FieldLegend>Basic Information</FieldLegend>
@@ -24,7 +31,14 @@ const BillBasicInfo = ({
         Core identity and classification of the bill:
       </FieldDescription>
       <FieldGroup>
-        <FormControl
+        <FormControlField
+          label="Bill Title"
+          type="text"
+          placeHolder="e.g Rent"
+          props={register?.("name")}
+          errors={errorList}
+        />
+        {/* <FormControl
           label={{
             name: "Bill Title",
           }}
@@ -34,7 +48,7 @@ const BillBasicInfo = ({
             type: "text",
             props: { ...register?.("name") },
           }}
-        />
+        /> */}
         <FormSelect
           control={control}
           label={{

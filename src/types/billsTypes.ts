@@ -34,7 +34,6 @@ export const BillCategorySchema = z.enum([
   "gifts_donations",
   "work_business",
   "other",
-  "",
 ]);
 export type FrequencyTypes = "monthly" | "yearly" | "daily" | "once";
 export const FrequencySchema = z.enum(["monthly", "yearly", "daily", "once"]);
@@ -75,10 +74,10 @@ export interface GetBillResponseI {
 export interface BillCardI extends BillDataI {}
 
 export const billSchema = z.object({
-  name: z.string(),
-  amount: z.number(),
-  billing_date: z.string(),
-  end_date: z.string(),
+  name: z.string().min(1, "Bill title is required."),
+  amount: z.string().min(1, "Bill amount is invalid"),
+  billing_date: z.string().min(1, "Invalid date"),
+  end_date: z.string().min(1, "Invalid date"),
   status: z.enum(["active", "inactive", "completed"]),
   category: BillCategorySchema,
   is_autopay: z.boolean(),

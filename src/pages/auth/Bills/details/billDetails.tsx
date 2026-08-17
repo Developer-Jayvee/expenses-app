@@ -1,6 +1,5 @@
 import { MdOutlineArrowBack } from "react-icons/md";
 import {
-  Navigate,
   NavLink,
   Outlet,
   useLocation,
@@ -13,9 +12,7 @@ import { LiaWalletSolid } from "react-icons/lia";
 import { CiEdit, CiTrash } from "react-icons/ci";
 import { useBillDetail } from "@c/context/BillDetailsProvider";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { DefaultModal } from "@c/components/modals/DefaultModal";
 import useBillsHook from "@c/hooks/useBillsHook";
-import BillForm from "../components/BillForm/billForm";
 import { updateBill_API } from "@c/hooks/api/bills-api";
 import { useModal } from "@c/context/ModalProvider";
 import PaymentLog from "../components/PaymentLog/paymentLog";
@@ -228,7 +225,7 @@ export default function BillDetails() {
         />
       </div>
 
-      <DefaultModal
+      {/* <DefaultModal
         isOpen={isModalOpen}
         setIsOpen={setIsModalOpen}
         onOpenChange={(isOpen) => setIsModalOpen(isOpen)}
@@ -240,7 +237,7 @@ export default function BillDetails() {
       >
         <></>
         <BillForm {...{ register, control }} />
-      </DefaultModal>
+      </DefaultModal> */}
     </div>
   );
 }

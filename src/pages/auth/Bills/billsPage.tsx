@@ -1,4 +1,3 @@
-import BillsProvider from "@c/context/BillsProvider";
 import { Outlet } from "react-router";
 
 export default function BillsPage() {
@@ -9,9 +8,7 @@ export default function BillsPage() {
           <h1 className="text-3xl font-bold">Bills</h1>
           <p className="text-md small">Manage your recurring bills.</p>
         </div>
-        <BillsProvider>
-          <Outlet />
-        </BillsProvider>
+        <Outlet />
       </div>
     </div>
   );

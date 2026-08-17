@@ -7,14 +7,10 @@ import {
 import FormControl from "@c/components/FormControl";
 import FormSelect from "@c/components/FormSelect";
 import { FrequencyOptions } from "@c/data/options";
+import { useFormContext } from "react-hook-form";
 
-const BillingDetails = ({
-  register,
-  control,
-}: {
-  register: any;
-  control: any;
-}) => {
+const BillingDetails = () => {
+  const { register, control } = useFormContext();
   return (
     <FieldSet>
       <FieldLegend>Billing Details</FieldLegend>
@@ -48,9 +44,7 @@ const BillingDetails = ({
               placeholder: "End Date",
               type: "date",
               props: {
-                ...register("end_date", {
-                  valueAsDate: true,
-                }),
+                ...register("end_date"),
               },
             }}
           />
