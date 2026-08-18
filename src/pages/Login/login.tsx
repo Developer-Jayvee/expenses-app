@@ -1,92 +1,136 @@
+import { Link, useLocation } from "react-router";
 import useAuthHook from "@c/hooks/useAuthHook";
-import InputField from "./components/InputField";
+import AuthInputField from "@c/components/AuthInputField";
+import AuthSplitLayout from "@c/components/layouts/AuthSplitLayout";
+import { DestructiveAlert } from "@c/components/alerts/DestructiveAlert";
+import { Alert, AlertDescription } from "@c/lib/shadcn/components/ui/alert";
+import { Button } from "@c/lib/shadcn/components/ui/button";
+import { CheckCircle2Icon } from "lucide-react";
 import type { PostLogin } from "@c/types/login-types";
+import type { ErrorResponseI } from "@c/types/globalTypes";
+import type {
+  FieldErrors,
+  UseFormHandleSubmit,
+  UseFormRegister,
+} from "react-hook-form";
 
 interface FormParamsInterface {
-  register: any;
-  handleSubmit: any;
+  register: UseFormRegister<PostLogin>;
+  handleSubmit: UseFormHandleSubmit<PostLogin>;
   onSubmit: (data: PostLogin) => void;
+  errors: FieldErrors<PostLogin>;
+  errorList: ErrorResponseI;
+  isSubmitting: boolean;
 }
 
 const LoginHeader = () => {
   return (
-    <div className="mt-20">
-      <h2 className="default font-bold text-2xl ">Welcome back</h2>
+    <div className="flex flex-col gap-1.5">
+      <h1 className="default text-2xl font-bold">Log in</h1>
       <p className="text-md small">Log in to manage your bills</p>
     </div>
   );
 };
-const LoginFooter = () => {
+
+const LoginFooter = ({
+  isSubmitting,
+}: Pick<FormParamsInterface, "isSubmitting">) => {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-2 items-center text-sm ">
-        <input type="checkbox" />
-        <label className="">Remember me</label>
-      </div>
-      <div>
-        <button className="login w-full rounded-lg text-white font-bold">
-          Log in
-        </button>
-      </div>
+      <Button
+        type="submit"
+        variant="primary"
+        className="w-full rounded-lg font-bold"
+        disabled={isSubmitting}
+      >
+        {isSubmitting ? "Logging in..." : "Log in"}
+      </Button>
       <div className="text-center">
         <small className="small">Don't have an account? </small>
-        <small className="text-blue-700! font-bold">Sign up</small>
+        <Link to="/register" className="text-blue-700! font-bold text-sm">
+          Sign up
+        </Link>
       </div>
     </div>
   );
 };
-const LoginBody = ({ register }: Pick<FormParamsInterface, "register">) => {
+const LoginBody = ({
+  register,
+  errors,
+}: Pick<FormParamsInterface, "register" | "errors">) => {
   return (
-    <>
-      <div>
-        <InputField
-          label={{
-            title: "Email",
-          }}
-          input={{
-            placeholder: "you@example.com",
-            type: "text",
-          }}
-          props={{ ...register("email") }}
-        />
-      </div>
-      <div>
-        <InputField
-          label={{
-            title: "Password",
-          }}
-          input={{
-            placeholder: "*******",
-            type: "password",
-          }}
-          props={{ ...register("password") }}
-        />
-      </div>
-    </>
+    <div className="flex flex-col gap-4">
+      <AuthInputField
+        label="Email"
+        type="text"
+        placeholder="you@example.com"
+        error={errors.email?.message}
+        props={{ ...register("email") }}
+      />
+      <AuthInputField
+        label="Password"
+        type="password"
+        placeholder="********"
+        error={errors.password?.message}
+        props={{ ...register("password") }}
+      />
+    </div>
   );
 };
 const LoginForm = ({
   register,
   handleSubmit,
   onSubmit,
+  errors,
+  errorList,
+  isSubmitting,
 }: FormParamsInterface) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex flex-col gap-6">
         <LoginHeader />
-        <LoginBody register={register} />
-        <LoginFooter />
+        {errorList && (
+          <DestructiveAlert
+            title={errorList?.message}
+            description={errorList?.data}
+          />
+        )}
+        <LoginBody register={register} errors={errors} />
+        <LoginFooter isSubmitting={isSubmitting} />
       </div>
     </form>
   );
 };
 export default function LoginPage() {
-  const { register, handleSubmit, onSubmit } = useAuthHook();
+  const { register, handleSubmit, onSubmit, errors, errorList, isSubmitting } =
+    useAuthHook();
+  const location = useLocation();
+  const justRegistered = Boolean(
+    (location.state as { registered?: boolean } | null)?.registered,
+  );
+
   return (
-    <div className="w-full h-screen  flex justify-center items-center">
-      <div className="bg-white w-120 max-w-200 h-auto rounded-2xl p-4 px-10 font-inter shadow-md">
-        <LoginForm {...{ register, handleSubmit, onSubmit }} />
+    <AuthSplitLayout>
+      <div className="flex flex-col gap-6">
+        {justRegistered && (
+          <Alert className="border-green-200 bg-green-50 text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-50">
+            <CheckCircle2Icon />
+            <AlertDescription>
+              Account created. You can now log in.
+            </AlertDescription>
+          </Alert>
+        )}
+        <LoginForm
+          {...{
+            register,
+            handleSubmit,
+            onSubmit,
+            errors,
+            errorList,
+            isSubmitting,
+          }}
+        />
       </div>
-    </div>
+    </AuthSplitLayout>
   );
 }

@@ -1,10 +1,15 @@
 import { loginSchema, type PostLogin } from "@c/types/login-types";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { getCookies, loginAPI, logoutAPI } from "@/hooks/api/auth/auth-api";
 import AuthService from "@c/services/AuthService";
+import type { ErrorResponseI } from "@c/types/globalTypes";
+import { extractRawHttpError } from "@c/utils/axios-error.util";
 
 export default function useAuthHook() {
+  const [errorList, setErrorList] = useState<ErrorResponseI>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -16,34 +21,35 @@ export default function useAuthHook() {
     email,
     password,
   }: PostLogin) => {
+    setIsSubmitting(true);
+    setErrorList(null);
     try {
-      await getCookies()
-      .then(async () => {
-        await loginAPI({ email, password })
-        .then(() =>{
-          window.location.reload();
-        });
-      })
+      await getCookies();
+      await loginAPI({ email, password });
+      window.location.reload();
     } catch (error) {
-      console.warn("Error found in: ", error);
+      setErrorList(extractRawHttpError(error));
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const onLogout = async () => {
     try {
-      await logoutAPI()
-      .then(() => {
+      await logoutAPI().then(() => {
         window.location.reload();
         AuthService.logoutUser();
-      })
+      });
     } catch (error) {
-      console.warn('Error found in: ',error);
-    } 
-  }
+      console.warn("Error found in: ", error);
+    }
+  };
   return {
     register,
     handleSubmit,
     onSubmit,
     errors,
-    onLogout
+    errorList,
+    isSubmitting,
+    onLogout,
   };
 }

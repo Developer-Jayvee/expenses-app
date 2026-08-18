@@ -6,6 +6,7 @@ import Authenticated from "@c/components/auth/Authenticated";
 const GuestAuth = lazy(() => import("@c/components/auth/GuestAuth"));
 
 const LoginPage = lazy(() => import("@c/pages/Login/login"));
+const RegisterPage = lazy(() => import("@c/pages/Register/register"));
 
 const DashboardPage = lazy(
   () => import("@c/pages/auth/Dashboard/dashboardPage"),
@@ -39,6 +40,10 @@ const Router = createBrowserRouter([
       {
         path: "/login",
         element: <LoginPage />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
       },
     ],
   },
