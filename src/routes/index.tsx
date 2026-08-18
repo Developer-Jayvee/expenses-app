@@ -19,6 +19,10 @@ const BillActivity = lazy(
   () => import("@c/pages/auth/Bills/details/billActivity"),
 );
 
+const DailyExpensesPage = lazy(
+  () => import("@c/pages/auth/DailyExpenses/dailyExpensesPage"),
+);
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -73,6 +77,10 @@ const Router = createBrowserRouter([
             element: <BillActivity />,
           },
         ],
+      },
+      {
+        path: "daily-expenses",
+        element: <DailyExpensesPage />,
       },
     ],
   },

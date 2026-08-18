@@ -1,5 +1,5 @@
 import { IoGridOutline } from "react-icons/io5";
-import { MdNewspaper } from "react-icons/md";
+import { MdNewspaper, MdOutlineReceiptLong } from "react-icons/md";
 import { HiOutlineLogout } from "react-icons/hi";
 import { NavLink } from "react-router";
 import {
@@ -23,6 +23,7 @@ import AuthService from "@c/services/AuthService";
 const NAV_LINKS = [
   { to: "dashboard", label: "Dashboard", icon: IoGridOutline },
   { to: "bills", label: "Bills", icon: MdNewspaper },
+  { to: "daily-expenses", label: "Daily Expenses", icon: MdOutlineReceiptLong },
 ];
 
 export default function TopBar() {

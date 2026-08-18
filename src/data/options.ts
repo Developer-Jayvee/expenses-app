@@ -18,3 +18,10 @@ export const PaymentOptions: OptionFormatI = [
   { label: "Cash", key: "cash" },
   { label: "GCash", key: "gcash" },
 ];
+
+export const DailyExpenseTypeOptions: OptionFormatI = [
+  { label: "Food", key: "food" },
+  { label: "Utilities", key: "utilities" },
+  { label: "Gas", key: "gas" },
+  { label: "Transport Fee", key: "transport_fee" },
+];

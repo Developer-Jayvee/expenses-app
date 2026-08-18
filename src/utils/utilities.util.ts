@@ -1,4 +1,5 @@
 import type { BillStatusT, FrequencyTypes } from "@c/types/billsTypes";
+import type { DailyBudgetStatusT } from "@c/types/dailyExpenseTypes";
 
 const BILL_STATUS_PILL_CLASSES: Record<BillStatusT, string> = {
   active: "text-blue-600 bg-blue-200",
@@ -9,6 +10,19 @@ const BILL_STATUS_PILL_CLASSES: Record<BillStatusT, string> = {
 
 export const bill_status_pill_class = (status?: BillStatusT | null) =>
   status ? BILL_STATUS_PILL_CLASSES[status] : BILL_STATUS_PILL_CLASSES.active;
+
+const DAILY_BUDGET_STATUS_PILL_CLASSES: Record<DailyBudgetStatusT, string> = {
+  active: "text-blue-600 bg-blue-200",
+  done: "text-green-600 bg-green-200",
+  cancelled: "text-gray-600 bg-gray-200",
+};
+
+export const daily_budget_status_pill_class = (
+  status?: DailyBudgetStatusT | null,
+) =>
+  status
+    ? DAILY_BUDGET_STATUS_PILL_CLASSES[status]
+    : DAILY_BUDGET_STATUS_PILL_CLASSES.active;
 
 export const date_formatter = (data: Date) => {
   const date = new Date(data);
