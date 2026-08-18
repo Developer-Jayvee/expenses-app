@@ -20,12 +20,14 @@ export default function FormSelect<TForm extends FieldValues>({
   name,
   options,
   control,
+  disabled = false,
 }: {
   label: ElementI;
   input: Pick<InputTextI, "placeholder" | "props">;
   options: Array<{ key: string; label: string }> | null;
   control: Control<TForm> | null;
   name: Path<TForm>;
+  disabled?: boolean;
 }) {
   return (
     <div className="flex flex-col gap-2">
@@ -53,6 +55,7 @@ export default function FormSelect<TForm extends FieldValues>({
                   <ComboboxInput
                     placeholder={input.placeholder}
                     value={selectedItem?.label ?? field.value}
+                    disabled={disabled}
                   />
                   <ComboboxContent>
                     <ComboboxEmpty>No items found.</ComboboxEmpty>

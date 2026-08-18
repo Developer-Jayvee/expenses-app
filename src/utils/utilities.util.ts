@@ -1,4 +1,4 @@
-import type { BillStatusT } from "@c/types/billsTypes";
+import type { BillStatusT, FrequencyTypes } from "@c/types/billsTypes";
 
 const BILL_STATUS_PILL_CLASSES: Record<BillStatusT, string> = {
   active: "text-blue-600 bg-blue-200",
@@ -18,6 +18,47 @@ export const date_formatter = (data: Date) => {
     month: "short",
     day: "numeric",
   });
+};
+
+export const today_date = () => new Date().toISOString().split("T")[0];
+
+export const add_days = (date: string, days: number): string => {
+  const d = new Date(date);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().split("T")[0];
+};
+
+export const add_months = (date: string, months: number): string => {
+  const d = new Date(date);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString().split("T")[0];
+};
+
+export const add_years = (date: string, years: number): string => {
+  const d = new Date(date);
+  d.setUTCFullYear(d.getUTCFullYear() + years);
+  return d.toISOString().split("T")[0];
+};
+
+/**
+ * Which frequencies are selectable for a given start/end date pair.
+ * Tomorrow -&gt; once only. &lt;1 month -&gt; daily. &lt;1 year -&gt; monthly/daily.
+ * &gt;=1 year -&gt; monthly/yearly/daily. Invalid range -&gt; none.
+ */
+export const get_frequency_options_for_range = (
+  startDate: string,
+  endDate: string,
+): FrequencyTypes[] => {
+  if (!startDate || !endDate || endDate <= startDate) return [];
+
+  const tomorrow = add_days(startDate, 1);
+  const oneMonth = add_months(startDate, 1);
+  const oneYear = add_years(startDate, 1);
+
+  if (endDate === tomorrow) return ["once"];
+  if (endDate < oneMonth) return ["daily"];
+  if (endDate < oneYear) return ["monthly", "daily"];
+  return ["monthly", "yearly", "daily"];
 };
 
 export const currency_formatter = (amount: number | string) => {

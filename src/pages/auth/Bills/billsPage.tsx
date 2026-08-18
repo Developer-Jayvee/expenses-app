@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 import { FormProvider } from "react-hook-form";
 import { BiPlus } from "react-icons/bi";
 import { FiDownload } from "react-icons/fi";
-import BillForm from "./components/BillForm/billForm";
+import BillFormWizard from "./components/BillForm/billFormWizard";
 import { useModal } from "@c/context/providers/ModalProvider";
 import { useBillContext } from "@c/context/providers/BillsProvider";
 import {
@@ -25,7 +25,7 @@ const CreateForm = () => {
           if (success) onClose();
         })}
       >
-        <BillForm />
+        <BillFormWizard />
       </form>
     </FormProvider>
   );
@@ -51,14 +51,15 @@ const csv_escape = (value: string | number) => {
 };
 
 export default function BillsPage() {
-  const { bills } = useBillContext();
+  const { bills, setFormMode } = useBillContext();
   const { configureModal, onOpen } = useModal();
 
   const handleCreate = () => {
+    setFormMode?.("create");
     configureModal?.({
       type: "general",
       content: <CreateForm />,
-      size: "xl",
+      size: "3xl",
       showFooter: false,
       header: <CreateFormHeader />,
     });

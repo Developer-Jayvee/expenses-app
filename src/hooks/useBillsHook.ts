@@ -1,5 +1,10 @@
-import { billSchema, type PostBillDataI } from "@c/types/billsTypes";
-import { useState } from "react";
+import {
+  createBillSchema,
+  editBillSchema,
+  getDefaultBillFormValues,
+  type PostBillDataI,
+} from "@c/types/billsTypes";
+import { useRef, useState } from "react";
 import {
   createBills_API,
   deleteBill_API,
@@ -20,20 +25,16 @@ export default function useBillsHook() {
   const [, setSelectedId] = useState<string | null>(null);
   const [selectedExp, setSelectedExp] = useState<PostBillDataI | null>(null);
   const [errorList, setErrorList] = useState<ErrorResponseI>(null);
+  const formModeRef = useRef<"create" | "edit">("create");
+  const setFormMode = (mode: "create" | "edit") => {
+    formModeRef.current = mode;
+  };
   const formMethod = useForm<BillFormSchema>({
-    resolver: zodResolver(billSchema),
-    defaultValues: {
-      name: "",
-      amount: "0",
-      status: "active",
-      is_autopay: true,
-      description: "",
-      category: "other",
-      frequency: "monthly",
-      billing_date: new Date().toISOString().split("T")[0],
-      end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-      default_payment: "cash",
-    },
+    resolver: (values, context, options) =>
+      zodResolver(
+        formModeRef.current === "edit" ? editBillSchema : createBillSchema,
+      )(values, context, options),
+    defaultValues: getDefaultBillFormValues(),
   });
   const {
     trigger,
@@ -44,8 +45,16 @@ export default function useBillsHook() {
     getValues,
     formState: { errors: billFormErrors },
   } = formMethod;
-  const getBillData = async (id: string) => {
-    setSelectedExp(await getBill_API(id));
+  const getBillData = async (id: string): Promise<PostBillDataI | null> => {
+    try {
+      const data = await getBill_API(id);
+      const bill = data?.id ? data : null;
+      setSelectedExp(bill);
+      return bill;
+    } catch {
+      setSelectedExp(null);
+      return null;
+    }
   };
 
   const fetchList = async () => setBillList(await listBills_API());
@@ -128,5 +137,6 @@ export default function useBillsHook() {
     errorList,
     trigger,
     formMethod,
+    setFormMode,
   };
 }

@@ -24,7 +24,7 @@ export const listBills_API = async (): Promise<PostBillDataI[]> => {
 
 export const deleteBill_API = async (id: string): Promise<DefaultResponseI> => {
   const response = await http.delete<DefaultResponseI>(`bills/${id}/delete`);
-  return response?.data;
+  return response as unknown as DefaultResponseI;
 };
 
 export const updateBill_API = async (

@@ -7,15 +7,14 @@ import ToastProvider from "@c/context/providers/ToastProvider";
 import useAuthCheck from "@c/hooks/auth/useAuthCheck";
 import AuthLayout from "@c/pages/auth/layout";
 import { useEffect } from "react";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, Outlet } from "react-router";
 
 export default function Authenticated() {
   const authCheck = useAuthCheck();
-  const location = useLocation();
 
   useEffect(() => {
     authCheck.checkAuthentication();
-  }, [location.pathname]);
+  }, []);
 
   if (authCheck.isAuthenticated === null) {
     return null;

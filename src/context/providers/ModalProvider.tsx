@@ -12,7 +12,7 @@ import type { FieldValues, UseFormReturn } from "react-hook-form";
 import type { BillFormSchema } from "./BillsProvider";
 import FormModalContext from "@c/components/modals/FormModalContext";
 
-type ModalSizes = "xl" | "lg" | "md" | "sm";
+type ModalSizes = "3xl" | "2xl" | "xl" | "lg" | "md" | "sm";
 interface ModalSettingI<T extends FieldValues = BillFormSchema> {
   header?: string | React.ReactNode;
   title?: string;

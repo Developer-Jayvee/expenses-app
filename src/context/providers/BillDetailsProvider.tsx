@@ -8,11 +8,11 @@ interface ProviderI {
 }
 export interface BillContextI {
   details: PostBillDataI | null;
-  getCallback: (id: string) => void;
+  getCallback: (id: string) => Promise<PostBillDataI | null>;
 }
 export const BillDetailContext = createContext<BillContextI | null>({
   details: null,
-  getCallback: () => {},
+  getCallback: async () => null,
 });
 export const useBillDetail = () =>
   useContextProvider<BillContextI>(BillDetailContext);

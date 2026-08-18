@@ -6,7 +6,7 @@ export default function GuestAuth() {
   const authCheck = useAuthCheck();
   useEffect(() => {
     authCheck.checkAuthentication();
-  }, [location.pathname]);
+  }, []);
 
   if (authCheck.isAuthenticated === null) {
     return null;

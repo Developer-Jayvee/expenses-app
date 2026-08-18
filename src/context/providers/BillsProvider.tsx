@@ -37,6 +37,7 @@ interface BillsContextI<T extends FieldValues = BillFormSchema> {
   trigger?: UseFormTrigger<BillFormSchema>;
   errorList: ErrorResponseI;
   formMethod: UseFormReturn<T> | null;
+  setFormMode: (mode: "create" | "edit") => void;
 }
 interface BillsProviderI {
   children: React.ReactNode;
@@ -55,6 +56,7 @@ export const BillsContext = createContext<BillsContextI | null>({
   control: null,
   errorList: null,
   formMethod: null,
+  setFormMode: () => undefined,
 });
 
 export const useBillContext = () =>
@@ -75,11 +77,11 @@ export default function BillsProvider({ children }: BillsProviderI) {
     onOpenUpdate,
     control,
     fetchList,
-    reset,
     billFormErrors,
     errorList,
     trigger,
     formMethod,
+    setFormMode,
   } = useBillsHook();
 
   const providerValues = useMemo<BillsContextI>(
@@ -98,6 +100,7 @@ export default function BillsProvider({ children }: BillsProviderI) {
       errorList,
       trigger,
       formMethod,
+      setFormMode,
     }),
     [billList, isModalOpen, errorList],
   );
@@ -108,22 +111,6 @@ export default function BillsProvider({ children }: BillsProviderI) {
       abort.abort();
     };
   }, [location.pathname]);
-  useEffect(() => {
-    if (!isModalOpen)
-      reset({
-        name: "",
-        amount: "0",
-        status: "active",
-        is_autopay: true,
-        description: "",
-        frequency: "monthly",
-        category: "other",
-        billing_date: new Date().toISOString().split("T")[0],
-        end_date: new Date(Date.now() + 86400000).toISOString().split("T")[0],
-        default_payment: "cash",
-      });
-  }, [isModalOpen, reset]);
-
   return (
     <BillsContext.Provider value={providerValues}>
       {children}

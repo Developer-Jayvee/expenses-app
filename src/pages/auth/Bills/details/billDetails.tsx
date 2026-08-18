@@ -30,7 +30,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createTransaction_API } from "@c/hooks/api/transaction-api";
 import useTransactionHook from "@c/hooks/useTransactionHook";
 import { useBillContext } from "@c/context/providers/BillsProvider";
-import BillForm from "../components/BillForm/billForm";
+import BillFormWizard from "../components/BillForm/billFormWizard";
 import { extractRawHttpError } from "@c/utils/axios-error.util";
 import { SuccessAlert } from "@c/components/alerts/SuccessAlert";
 import { ModalContextService } from "@c/context/ModalContext";
@@ -61,7 +61,15 @@ const EditFormHeader = () => {
   );
 };
 
-const EditForm = ({ id, onUpdated }: { id: string; onUpdated: () => void }) => {
+const EditForm = ({
+  id,
+  locked,
+  onUpdated,
+}: {
+  id: string;
+  locked: boolean;
+  onUpdated: () => void;
+}) => {
   const { formMethod, onUpdate, handleSubmit } = useBillContext();
   const { onClose } = useModal();
   const { showToast } = useToast();
@@ -86,7 +94,7 @@ const EditForm = ({ id, onUpdated }: { id: string; onUpdated: () => void }) => {
           }
         })}
       >
-        <BillForm />
+        <BillFormWizard mode="edit" locked={locked} />
       </form>
     </FormProvider>
   );
@@ -97,7 +105,7 @@ export default function BillDetails() {
   const { id } = useParams();
 
   const { details, getCallback } = useBillDetail();
-  const { formMethod, onDelete } = useBillContext();
+  const { formMethod, onDelete, setFormMode } = useBillContext();
   const { onOpen, configureModal } = useModal();
   const {
     onOpen: onConfirmOpen,
@@ -151,7 +159,7 @@ export default function BillDetails() {
           navigate("/expense/bills", { replace: true });
         } else {
           showToast({
-            message: result?.message ?? "Failed to delete bill.",
+            message: "Please try again later.",
             variant: "danger",
           });
         }
@@ -217,22 +225,42 @@ export default function BillDetails() {
     });
     onOpen();
   };
+  const hasLoggedPayments = (summary?.payments_count ?? 0) > 0;
   const handleUpdate = () => {
-    if (!id) return;
+    if (!id || !details) return;
+    setFormMode?.("edit");
+    formMethod?.reset({
+      ...details,
+      amount: String(details.amount),
+      is_autopay: Boolean(details.is_autopay),
+    });
     configureModal?.({
       type: "general",
-      content: <EditForm id={id} onUpdated={() => getCallback(id)} />,
-      size: "xl",
+      content: (
+        <EditForm
+          id={id}
+          locked={hasLoggedPayments}
+          onUpdated={() => getCallback(id)}
+        />
+      ),
+      size: "3xl",
       showFooter: false,
       header: <EditFormHeader />,
     });
     onOpen();
   };
   useEffect(() => {
-    if (id !== null && id !== undefined) {
-      getCallback(id);
-      getTransactions(id, { page: 1, per_page: TRANSACTION_PAGE_SIZE });
+    const isInvalidId = !id || Number.isNaN(Number(id));
+    if (isInvalidId) {
+      navigate("/expense/bills", { replace: true });
+      return;
     }
+    getCallback(id).then((bill) => {
+      if (!bill) {
+        navigate("/expense/bills", { replace: true });
+      }
+    });
+    getTransactions(id, { page: 1, per_page: TRANSACTION_PAGE_SIZE });
   }, [location.pathname]);
 
   useEffect(() => {

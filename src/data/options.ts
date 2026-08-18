@@ -7,6 +7,7 @@ export const StatusOptions: OptionFormatI = [
 ];
 
 export const FrequencyOptions: OptionFormatI = [
+  { label: "Select Frequency", key: "" },
   { label: "Monthly", key: "monthly" },
   { label: "Yearly", key: "yearly" },
   { label: "Daily", key: "daily" },
