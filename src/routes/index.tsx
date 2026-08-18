@@ -7,6 +7,10 @@ const GuestAuth = lazy(() => import("@c/components/auth/GuestAuth"));
 
 const LoginPage = lazy(() => import("@c/pages/Login/login"));
 
+const DashboardPage = lazy(
+  () => import("@c/pages/auth/Dashboard/dashboardPage"),
+);
+
 const BillsPage = lazy(() => import("@c/pages/auth/Bills/billsPage"));
 const BillList = lazy(() => import("@c/pages/auth/Bills/list/billsList"));
 const BillDetailsLayout = lazy(
@@ -48,7 +52,7 @@ const Router = createBrowserRouter([
       },
       {
         path: "dashboard",
-        element: <></>,
+        element: <DashboardPage />,
       },
       {
         path: "bills",
