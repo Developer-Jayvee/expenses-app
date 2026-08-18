@@ -15,6 +15,9 @@ const BillDetailsLayout = lazy(
 const BillTransactions = lazy(
   () => import("@c/pages/auth/Bills/details/billTransactions"),
 );
+const BillActivity = lazy(
+  () => import("@c/pages/auth/Bills/details/billActivity"),
+);
 
 const Router = createBrowserRouter([
   {
@@ -58,8 +61,16 @@ const Router = createBrowserRouter([
         element: <BillDetailsLayout />,
         children: [
           {
+            index: true,
+            element: <Navigate to="transactions" replace />,
+          },
+          {
             path: "transactions",
             element: <BillTransactions />,
+          },
+          {
+            path: "activities",
+            element: <BillActivity />,
           },
         ],
       },

@@ -58,6 +58,7 @@ export default function Modal({ showCloseButton = false }: ModalI) {
                     className="px-6!"
                     variant="primary"
                     type="submit"
+                    disabled={modalSetting?.disableSubmit}
                     onClick={() => {
                       try {
                         modalSetting?.submitEvent?.();

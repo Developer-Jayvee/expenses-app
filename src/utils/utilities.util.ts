@@ -1,3 +1,15 @@
+import type { BillStatusT } from "@c/types/billsTypes";
+
+const BILL_STATUS_PILL_CLASSES: Record<BillStatusT, string> = {
+  active: "text-blue-600 bg-blue-200",
+  ongoing: "text-yellow-600 bg-yellow-200",
+  completed: "text-green-600 bg-green-200",
+  inactive: "text-gray-600 bg-gray-200",
+};
+
+export const bill_status_pill_class = (status?: BillStatusT | null) =>
+  status ? BILL_STATUS_PILL_CLASSES[status] : BILL_STATUS_PILL_CLASSES.active;
+
 export const date_formatter = (data: Date) => {
   const date = new Date(data);
 
@@ -6,6 +18,57 @@ export const date_formatter = (data: Date) => {
     month: "short",
     day: "numeric",
   });
+};
+
+export const currency_formatter = (amount: number | string) => {
+  const value =
+    Number(typeof amount === "string" ? amount.replace(/,/g, "") : amount) || 0;
+
+  return `₱${value.toLocaleString("en-us", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};
+
+const AVATAR_TINT_PALETTE = [
+  {
+    bg: "bg-blue-100 dark:bg-blue-500/15",
+    fg: "text-blue-700 dark:text-blue-400",
+  },
+  {
+    bg: "bg-violet-100 dark:bg-violet-500/15",
+    fg: "text-violet-700 dark:text-violet-400",
+  },
+  {
+    bg: "bg-amber-100 dark:bg-amber-500/15",
+    fg: "text-amber-700 dark:text-amber-400",
+  },
+  {
+    bg: "bg-emerald-100 dark:bg-emerald-500/15",
+    fg: "text-emerald-700 dark:text-emerald-400",
+  },
+  {
+    bg: "bg-rose-100 dark:bg-rose-500/15",
+    fg: "text-rose-700 dark:text-rose-400",
+  },
+  {
+    bg: "bg-cyan-100 dark:bg-cyan-500/15",
+    fg: "text-cyan-700 dark:text-cyan-400",
+  },
+];
+
+export const avatar_tint = (name: string) => {
+  let hash = 0;
+  for (let i = 0; i < name.length; i++)
+    hash = (hash + name.charCodeAt(i)) % 997;
+  return AVATAR_TINT_PALETTE[hash % AVATAR_TINT_PALETTE.length];
+};
+
+export const get_initials = (name: string) => {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.[0] ?? "";
+  const second = parts[1]?.[0] ?? parts[0]?.[1] ?? "";
+  return (first + second).toUpperCase();
 };
 
 export const url_search = (

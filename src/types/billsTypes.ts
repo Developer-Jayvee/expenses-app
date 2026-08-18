@@ -1,6 +1,6 @@
 import z from "zod";
 
-export type BillStatusT = "active" | "inactive" | "completed";
+export type BillStatusT = "active" | "ongoing" | "inactive" | "completed";
 
 export type BillCategoryType =
   | "housing"
@@ -78,7 +78,7 @@ export const billSchema = z.object({
   amount: z.string().min(1, "Bill amount is invalid"),
   billing_date: z.string().min(1, "Invalid date"),
   end_date: z.string().min(1, "Invalid date"),
-  status: z.enum(["active", "inactive", "completed"]),
+  status: z.enum(["active", "ongoing", "inactive", "completed"]),
   category: BillCategorySchema,
   is_autopay: z.boolean(),
   description: z.string().optional(),
@@ -86,15 +86,8 @@ export const billSchema = z.object({
   default_payment: z.enum(["gcash", "cash"]),
 });
 
-export type PillColor = "primary" | "danger" | "warning";
-
 export interface DynamicDetailsI {
   children: React.ReactNode;
   type: string;
-  value: string;
-}
-
-export interface KPICardI extends DynamicDetailsI {
-  description: string;
-  iconColor?: PillColor;
+  value: React.ReactNode;
 }

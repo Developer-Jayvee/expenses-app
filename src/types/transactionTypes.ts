@@ -78,5 +78,6 @@ export interface TransactionOutletI {
   onDelete: (transaction: TransactionResourceI) => void;
   pendingDeleteIds: Set<string | number>;
   meta: TransactionMetaI | null;
+  summary: TransactionSummaryI | null;
   onPageChange: (page: number) => void;
 }

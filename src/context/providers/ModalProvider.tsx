@@ -23,6 +23,7 @@ interface ModalSettingI<T extends FieldValues = BillFormSchema> {
   size?: ModalSizes;
   showFooter?: boolean;
   useFormMethods?: UseFormReturn<T> | null;
+  disableSubmit?: boolean;
 }
 interface ModalContextI {
   onOpen: () => void;
@@ -67,6 +68,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
     submitEvent = undefined,
     showFooter = true,
     useFormMethods,
+    disableSubmit = false,
   }: ModalSettingI) => {
     setModalSetting((prev) => ({
       ...prev,
@@ -79,6 +81,7 @@ export const ModalProvider = ({ children }: { children: React.ReactNode }) => {
       description,
       showFooter,
       useFormMethods,
+      disableSubmit,
     }));
   };
   const modalValue = useMemo<ModalContextI>(

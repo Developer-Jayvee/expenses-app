@@ -39,6 +39,7 @@ export default function ConfirmModal({
     try {
       onConfirm();
     } finally {
+      onClose();
       setIsModalOpen(false);
     }
   };

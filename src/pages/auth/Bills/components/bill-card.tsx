@@ -1,6 +1,9 @@
 import DropMenu from "@c/components/ui/DropMenu";
 import type { PostBillDataI } from "@c/types/billsTypes";
-import { date_formatter } from "@c/utils/utilities.util";
+import {
+  bill_status_pill_class,
+  date_formatter,
+} from "@c/utils/utilities.util";
 import { BsThreeDots } from "react-icons/bs";
 interface BillCardI {
   item: Partial<PostBillDataI>;
@@ -8,14 +11,20 @@ interface BillCardI {
   onOpen: () => void;
 }
 export default function BillCard({ item, onDelete, onOpen }: BillCardI) {
-  const date = date_formatter((item?.billing_date ?? new Date()) as Date);
+  const endDate = date_formatter((item?.end_date ?? new Date()) as Date);
+  const deadlineDay = item?.billing_date
+    ? new Date(item.billing_date).getDate()
+    : null;
+  const isCompleted = item.status === "completed";
   return (
     <div className="bills-card p-4   bg-white rounded-2xl font-inter shadow-md hover:scale-101 transition-all cursor-pointer">
       <div className="flex flex-col gap-2">
         <div className="flex justify-between">
           <div className="">
             <h3 className="font-bold inline-block mr-2">{item?.name}</h3>
-            <div className="inline-block rounded-lg p-1 text-sm px-2 text-red-600 bg-red-200">
+            <div
+              className={`inline-block rounded-lg p-1 text-sm px-2 ${bill_status_pill_class(item.status)}`}
+            >
               {item.status}
             </div>
           </div>
@@ -29,10 +38,14 @@ export default function BillCard({ item, onDelete, onOpen }: BillCardI) {
                         label: "Open",
                         event: () => onOpen(),
                       },
-                      {
-                        label: "Delete",
-                        event: () => onDelete(),
-                      },
+                      ...(isCompleted
+                        ? []
+                        : [
+                            {
+                              label: "Delete",
+                              event: () => onDelete(),
+                            },
+                          ]),
                     ],
                   },
                 ]}
@@ -52,11 +65,11 @@ export default function BillCard({ item, onDelete, onOpen }: BillCardI) {
         <div className="grid grid-cols-2 text-sm">
           <div>
             <h4 className="small font-bold block">MONTHLY DEADLINE</h4>
-            <p>Day 1</p>
+            <p>{deadlineDay ? `Day ${deadlineDay}` : "—"}</p>
           </div>
           <div>
             <h4 className="small font-bold block">END DATE</h4>
-            <p>{date}</p>
+            <p>{endDate}</p>
           </div>
         </div>
       </div>

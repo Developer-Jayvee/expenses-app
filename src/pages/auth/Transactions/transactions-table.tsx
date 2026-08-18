@@ -1,4 +1,5 @@
 import { Button } from "@c/lib/shadcn/components/ui/button";
+import { Badge } from "@c/lib/shadcn/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -11,6 +12,7 @@ import {
   TRANSACTION_DELETE_WINDOW_MS,
   type TransactionsTableI,
 } from "@c/types/transactionTypes";
+import { currency_formatter } from "@c/utils/utilities.util";
 import { useEffect, useState } from "react";
 import { CiTrash } from "react-icons/ci";
 
@@ -30,12 +32,12 @@ export default function TransactionTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-25 text-center">Date</TableHead>
-          <TableHead className="w-37.5 text-center">Amount</TableHead>
-          <TableHead className="w-25 text-center">Method</TableHead>
-          <TableHead className="text-center w-35 ">Status</TableHead>
-          <TableHead className="text-center">Reference</TableHead>
-          <TableHead className="text-center">Actions</TableHead>
+          <TableHead>Date</TableHead>
+          <TableHead className="text-right">Amount</TableHead>
+          <TableHead>Method</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Reference</TableHead>
+          <TableHead className="w-10" />
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -51,22 +53,29 @@ export default function TransactionTable({
                 key={data.id}
                 className={isPendingDelete ? "opacity-50" : undefined}
               >
-                <TableCell className="font-medium text-center">
+                <TableCell className="font-mono text-muted-foreground">
                   {data?.transaction_date}
                 </TableCell>
-                <TableCell className=" text-center">
-                  Php {data?.amount}
+                <TableCell className="text-right font-mono font-medium">
+                  {currency_formatter(data?.amount)}
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className="text-muted-foreground">
                   {data?.payment_mode?.label}
                 </TableCell>
-                <TableCell className="text-center">PAID</TableCell>
-                <TableCell className="text-center"></TableCell>
-                <TableCell className="text-center">
+                <TableCell>
+                  <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-400">
+                    <span className="size-1.5 rounded-full bg-current" />
+                    Paid
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  —
+                </TableCell>
+                <TableCell className="text-right">
                   {onDelete && canDelete && (
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="ghost"
                       size="icon-sm"
                       title="Delete payment log"
                       onClick={() => onDelete(data)}

@@ -8,9 +8,8 @@ import {
 } from "react-router";
 import BillDetailHeaders from "./billDetaillHeaders";
 import BillDetailSummary from "./billDetailSummary";
-import { LiaWalletSolid } from "react-icons/lia";
-import { CiEdit, CiTrash } from "react-icons/ci";
 import { useBillDetail } from "@c/context/providers/BillDetailsProvider";
+import { Card } from "@c/lib/shadcn/components/ui/card";
 import { useEffect } from "react";
 import { useModal } from "@c/context/providers/ModalProvider";
 import { useToast } from "@c/context/providers/ToastProvider";
@@ -33,14 +32,22 @@ import useTransactionHook from "@c/hooks/useTransactionHook";
 import { useBillContext } from "@c/context/providers/BillsProvider";
 import BillForm from "../components/BillForm/billForm";
 import { extractRawHttpError } from "@c/utils/axios-error.util";
+import { SuccessAlert } from "@c/components/alerts/SuccessAlert";
+import { ModalContextService } from "@c/context/ModalContext";
 
-const LogPaymentHeader = () => {
+const LogPaymentHeader = ({ isFullyPaid }: { isFullyPaid: boolean }) => {
   return (
     <>
       <DialogTitle>Log Payment</DialogTitle>
       <DialogDescription>
         Record a payment to keep your transactions organized.
       </DialogDescription>
+      {isFullyPaid && (
+        <SuccessAlert
+          title="This bill is fully paid"
+          description="You've successfully logged every payment for this bill — there's nothing left to pay, so logging another one is disabled."
+        />
+      )}
     </>
   );
 };
@@ -92,7 +99,13 @@ export default function BillDetails() {
   const { details, getCallback } = useBillDetail();
   const { formMethod, onDelete } = useBillContext();
   const { onOpen, configureModal } = useModal();
+  const {
+    onOpen: onConfirmOpen,
+    confirmModalConfig,
+    handleConfirm,
+  } = ModalContextService.confirmModal();
   const { showUndoToast, showToast } = useToast();
+  const isOngoing = details?.status === "ongoing";
   const {
     resource,
     meta,
@@ -123,36 +136,35 @@ export default function BillDetails() {
   });
 
   const confirmDelete = () => {
-    configureModal?.({
-      size: "md",
-      type: "confirm",
+    if (!id || isOngoing) return;
+    confirmModalConfig({
       title: "Are you sure you want to delete this bill?",
-      description: "This will deleted the bill permanently.",
-      submitEvent: () => {
-        if (id) {
-          onDelete(id ?? null).then((result) => {
-            if (result?.status) {
-              showToast({
-                message: "Bill deleted successfully.",
-                variant: "success",
-              });
-              navigate("/expense/bills", { replace: true });
-            } else {
-              showToast({
-                message: result?.message ?? "Failed to delete bill.",
-                variant: "danger",
-              });
-            }
+      description: "This will delete the bill permanently.",
+    });
+    handleConfirm(() => {
+      onDelete(id).then((result) => {
+        if (result?.status) {
+          showToast({
+            message: "Bill deleted successfully.",
+            variant: "success",
+          });
+          navigate("/expense/bills", { replace: true });
+        } else {
+          showToast({
+            message: result?.message ?? "Failed to delete bill.",
+            variant: "danger",
           });
         }
-      },
+      });
     });
-    onOpen();
+    onConfirmOpen();
   };
   const handleLogPayment = () => {
+    const isFullyPaid = details?.status === "completed";
     configureModal?.({
-      header: <LogPaymentHeader />,
+      header: <LogPaymentHeader isFullyPaid={isFullyPaid} />,
       size: "lg",
+      disableSubmit: isFullyPaid,
       content: (
         <PaymentLog
           details={details}
@@ -242,70 +254,54 @@ export default function BillDetails() {
 
   return (
     <div className="p-5">
-      <div className="flex">
-        {/* Button header */}
-        <div className="">
-          <button
-            className="font-normal! flex gap-2 items-center cursor-pointer"
-            onClick={() => navigate("/expense/bills", { replace: true })}
-          >
-            <MdOutlineArrowBack size={20} />
-            Back to bills
-          </button>
-        </div>
+      <button
+        className="mb-5 flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        onClick={() => navigate("/expense/bills", { replace: true })}
+      >
+        <MdOutlineArrowBack size={16} />
+        Back to bills
+      </button>
+
+      <Card className="gap-0 overflow-hidden rounded-2xl py-0">
+        <BillDetailHeaders
+          onLogPayment={handleLogPayment}
+          onEdit={handleUpdate}
+          onDelete={confirmDelete}
+        />
+        <BillDetailSummary summary={summary} />
+      </Card>
+
+      <div className="mt-7 flex items-center gap-6 border-b">
+        <NavLink
+          to="transactions"
+          className={({ isActive }) =>
+            `-mb-px flex items-center gap-2 border-b-2 pb-2.5 text-sm font-semibold ${
+              isActive
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`
+          }
+        >
+          Transactions
+          <span className="font-mono text-xs font-normal text-muted-foreground">
+            {summary?.payments_count ?? 0}
+          </span>
+        </NavLink>
+        <NavLink
+          to="activities"
+          className={({ isActive }) =>
+            `-mb-px flex items-center gap-2 border-b-2 pb-2.5 text-sm font-semibold ${
+              isActive
+                ? "border-primary text-primary"
+                : "border-transparent text-muted-foreground hover:text-foreground"
+            }`
+          }
+        >
+          Activity
+        </NavLink>
       </div>
-      {/* Main header */}
-      <BillDetailHeaders />
-      {/* ACTIONS */}
-      <div className="mt-5">
-        <div className="btn-group">
-          <button
-            className="primary btn-flex"
-            onClick={() => handleLogPayment()}
-          >
-            <LiaWalletSolid size={20} />
-            Log Payment
-          </button>
-          <button
-            className="ghost-primary btn-flex"
-            disabled={details === null}
-            onClick={() => handleUpdate()}
-          >
-            <CiEdit size={20} />
-            Edit Bill
-          </button>
-          <button
-            onClick={() => confirmDelete()}
-            className="ghost-danger btn-flex"
-          >
-            <CiTrash size={20} />
-            Delete
-          </button>
-        </div>
-      </div>
-      {/* KPI */}
-      <BillDetailSummary summary={summary} />
-      {/* TABS */}
-      <div className="mt-5">
-        <ul className="flex gap-4 border-0 border-b pb-4">
-          <li>
-            <NavLink
-              to="transactions"
-              className={({ isActive }) =>
-                `text-lg py-3 pb-4 border-b-2 ${
-                  isActive
-                    ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-600 hover:text-gray-900"
-                }`
-              }
-            >
-              Transactions
-            </NavLink>
-          </li>
-        </ul>
-      </div>
-      {/* ACTIVITIES */}
-      <div className="mt-4">
+
+      <Card className="gap-0 overflow-hidden rounded-t-none rounded-b-2xl py-0">
         <Outlet
           context={{
             list: resource,
@@ -313,10 +309,11 @@ export default function BillDetails() {
               deleteTransaction(transaction, showUndoToast),
             pendingDeleteIds,
             meta,
+            summary,
             onPageChange: goToPage,
           }}
         />
-      </div>
+      </Card>
     </div>
   );
 }

@@ -7,10 +7,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@c/lib/shadcn/components/ui/pagination";
-import type { TransactionMetaI } from "@c/types/transactionTypes";
+import type { ActivityMetaI } from "@c/types/activityTypes";
 
-interface TransactionsPaginationI {
-  meta: TransactionMetaI | null;
+interface ActivityPaginationI {
+  meta: ActivityMetaI | null;
   onPageChange: (page: number) => void;
 }
 
@@ -34,10 +34,10 @@ const getPageEntries = (current: number, last: number): PageEntry[] => {
   }, []);
 };
 
-export default function TransactionsPagination({
+export default function ActivityPagination({
   meta,
   onPageChange,
-}: TransactionsPaginationI) {
+}: ActivityPaginationI) {
   if (!meta || meta.last_page <= 1) return null;
 
   const { current_page, last_page } = meta;
