@@ -1,9 +1,12 @@
 import type { UndoToastOptionsI } from "@c/types/toastTypes";
 import {
   TRANSACTION_DELETE_WINDOW_MS,
+  type TransactionListParamsI,
+  type TransactionMetaI,
   type TransactionResourceI,
+  type TransactionSummaryI,
 } from "@c/types/transactionTypes";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   deleteTransaction_API,
   userTransactions_API,
@@ -17,15 +20,31 @@ const removePending = (prev: Set<string | number>, id: string | number) => {
 
 export default function useTransactionHook() {
   const [resource, setResource] = useState<TransactionResourceI[] | null>(null);
+  const [meta, setMeta] = useState<TransactionMetaI | null>(null);
+  const [summary, setSummary] = useState<TransactionSummaryI | null>(null);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<
     Set<string | number>
   >(new Set());
+  const lastFetchRef = useRef<{
+    billId: string;
+    params?: TransactionListParamsI;
+  } | null>(null);
 
-  const getTransactions = async (id: string) => {
-    const response = await userTransactions_API(id);
+  const getTransactions = async (
+    id: string,
+    params?: TransactionListParamsI,
+  ) => {
+    lastFetchRef.current = { billId: id, params };
+    const response = await userTransactions_API(id, params);
     if (response) {
-      setResource(response);
-    } else setResource(null);
+      setResource(response.items);
+      setMeta(response.meta);
+      setSummary(response.summary);
+    } else {
+      setResource(null);
+      setMeta(null);
+      setSummary(null);
+    }
     setPendingDeleteIds(new Set());
   };
 
@@ -44,10 +63,8 @@ export default function useTransactionHook() {
       onExpire: () => {
         deleteTransaction_API(transaction.id)
           .then(() => {
-            setResource(
-              (prev) =>
-                prev?.filter((item) => item.id !== transaction.id) ?? prev,
-            );
+            const last = lastFetchRef.current;
+            if (last) return getTransactions(last.billId, last.params);
           })
           .finally(() => {
             setPendingDeleteIds((prev) => removePending(prev, transaction.id));
@@ -58,6 +75,8 @@ export default function useTransactionHook() {
 
   return {
     resource,
+    meta,
+    summary,
     pendingDeleteIds,
     getTransactions,
     deleteTransaction,

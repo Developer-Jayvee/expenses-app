@@ -1,5 +1,6 @@
 import { useOutletContext } from "react-router";
 import TransactionTable from "../../Transactions/transactions-table";
+import TransactionsPagination from "../../Transactions/transactions-pagination";
 import type { TransactionOutletI } from "@c/types/transactionTypes";
 
 export default function BillTransactions() {
@@ -7,6 +8,8 @@ export default function BillTransactions() {
     list: resource,
     onDelete,
     pendingDeleteIds,
+    meta,
+    onPageChange,
   } = useOutletContext<TransactionOutletI>();
   return (
     <div className="w-full">
@@ -20,6 +23,7 @@ export default function BillTransactions() {
           onDelete={onDelete}
           pendingDeleteIds={pendingDeleteIds}
         />
+        <TransactionsPagination meta={meta} onPageChange={onPageChange} />
       </div>
     </div>
   );

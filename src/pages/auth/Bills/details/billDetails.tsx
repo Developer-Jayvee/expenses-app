@@ -22,6 +22,7 @@ import {
 import { FormProvider, useForm } from "react-hook-form";
 import {
   logPaymentSchema,
+  TRANSACTION_PAGE_SIZE,
   type ExtendedLogPayment,
   type LogPaymentType,
   type TransactionResourceI,
@@ -92,8 +93,18 @@ export default function BillDetails() {
   const { formMethod, onDelete } = useBillContext();
   const { onOpen, configureModal } = useModal();
   const { showUndoToast, showToast } = useToast();
-  const { resource, pendingDeleteIds, getTransactions, deleteTransaction } =
-    useTransactionHook();
+  const {
+    resource,
+    meta,
+    summary,
+    pendingDeleteIds,
+    getTransactions,
+    deleteTransaction,
+  } = useTransactionHook();
+  const goToPage = (nextPage: number) => {
+    if (!id) return;
+    getTransactions(id, { page: nextPage, per_page: TRANSACTION_PAGE_SIZE });
+  };
 
   const {
     control: LogControl,
@@ -163,7 +174,10 @@ export default function BillDetails() {
             if (result?.status) {
               if (id) {
                 getCallback(id);
-                getTransactions(id);
+                getTransactions(id, {
+                  page: 1,
+                  per_page: TRANSACTION_PAGE_SIZE,
+                });
               }
               showToast({
                 message: "Payment logged successfully.",
@@ -205,7 +219,7 @@ export default function BillDetails() {
   useEffect(() => {
     if (id !== null && id !== undefined) {
       getCallback(id);
-      getTransactions(id);
+      getTransactions(id, { page: 1, per_page: TRANSACTION_PAGE_SIZE });
     }
   }, [location.pathname]);
 
@@ -270,7 +284,7 @@ export default function BillDetails() {
         </div>
       </div>
       {/* KPI */}
-      <BillDetailSummary transactions={resource} />
+      <BillDetailSummary summary={summary} />
       {/* TABS */}
       <div className="mt-5">
         <ul className="flex gap-4 border-0 border-b pb-4">
@@ -298,6 +312,8 @@ export default function BillDetails() {
             onDelete: (transaction: TransactionResourceI) =>
               deleteTransaction(transaction, showUndoToast),
             pendingDeleteIds,
+            meta,
+            onPageChange: goToPage,
           }}
         />
       </div>

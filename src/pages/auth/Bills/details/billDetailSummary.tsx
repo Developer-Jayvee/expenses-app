@@ -3,7 +3,7 @@ import { AiOutlinePieChart } from "react-icons/ai";
 import { LuCalendarRange } from "react-icons/lu";
 import { useMemo } from "react";
 import type { KPICardI, PillColor } from "@c/types/billsTypes";
-import type { TransactionResourceI } from "@c/types/transactionTypes";
+import type { TransactionSummaryI } from "@c/types/transactionTypes";
 import { date_formatter } from "@c/utils/utilities.util";
 
 const pillColor: Record<PillColor, { bg: string; color: string }> = {
@@ -48,30 +48,24 @@ const KPICard = ({
   );
 };
 interface BillDetailSummaryI {
-  transactions: TransactionResourceI[] | null;
+  summary: TransactionSummaryI | null;
 }
 
 export default function BillDetailSummary({
-  transactions,
+  summary: rawSummary,
 }: BillDetailSummaryI) {
   const summary = useMemo(() => {
-    const list = transactions ?? [];
-    const totalPaid = list.reduce((sum, item) => sum + Number(item.amount), 0);
-    const lastPayment = [...list].sort(
-      (a, b) =>
-        new Date(b.transaction_date).getTime() -
-        new Date(a.transaction_date).getTime(),
-    )[0];
+    const lastPayment = rawSummary?.last_payment ?? null;
 
     return {
-      totalPaid,
-      paymentsCount: list.length,
+      totalPaid: rawSummary?.total_paid ?? 0,
+      paymentsCount: rawSummary?.payments_count ?? 0,
       lastPaymentDate: lastPayment
         ? date_formatter(new Date(lastPayment.transaction_date))
         : "--",
       lastPaymentMode: lastPayment ? lastPayment.payment_mode.label : "",
     };
-  }, [transactions]);
+  }, [rawSummary]);
 
   return (
     <div className="border border-gray-500 rounded-md p-4 mt-5 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">

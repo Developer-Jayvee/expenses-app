@@ -3,7 +3,8 @@ import type { DefaultResponseI } from "@c/types/globalTypes";
 import type {
   ExtendedLogPayment,
   TransactionDataI,
-  TransactionResourceI,
+  TransactionListParamsI,
+  TransactionListResponseI,
 } from "@c/types/transactionTypes";
 
 type CreateResponseType = DefaultResponseI<Array<TransactionDataI>>;
@@ -20,8 +21,11 @@ export const createTransaction_API = async (
 
 export const userTransactions_API = async (
   billId: string,
-): Promise<TransactionResourceI[]> => {
-  const response = await http.get(`${BASE_TRANSACTION_URL}/${billId}/list`);
+  params?: TransactionListParamsI,
+): Promise<TransactionListResponseI> => {
+  const response = await http.get(`${BASE_TRANSACTION_URL}/${billId}/list`, {
+    params,
+  });
   return response?.data;
 };
 
