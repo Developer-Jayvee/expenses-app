@@ -54,27 +54,29 @@ export default function ConfirmModal({
 
   return (
     <Dialog open={isModalOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg" showCloseButton={showCloseButton}>
-        <DialogHeader>
-          <DialogTitle className="text-center text-lg font-bold">
+      <DialogContent
+        className="gap-5 rounded-2xl p-6 shadow-2xl sm:max-w-md"
+        showCloseButton={showCloseButton}
+      >
+        <DialogHeader className="gap-2">
+          <DialogTitle className="text-lg font-semibold">
             {modalDetails.title}
           </DialogTitle>
+          {modalDetails.description && (
+            <DialogDescription className="leading-relaxed">
+              {modalDetails.description}
+            </DialogDescription>
+          )}
         </DialogHeader>
-        {modalDetails.description && (
-          <DialogDescription className="text-center">
-            {modalDetails.description}
-          </DialogDescription>
-        )}
-        <div className="flex gap-2 mt-5">
-          <Button variant="ghost" type="button" onClick={() => handleClose()}>
-            Close
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" type="button" onClick={() => handleClose()}>
+            Cancel
           </Button>
           <Button
             variant="primary"
             type="button"
             onClick={() => handleConfirm()}
           >
-            {" "}
             Confirm
           </Button>
         </div>
