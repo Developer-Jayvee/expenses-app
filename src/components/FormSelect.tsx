@@ -35,6 +35,7 @@ export default function FormSelect<TForm extends FieldValues>({
         className={`${label.customClass ?? "font-medium text-muted-foreground"}`}
       >
         {label.name}
+        {label.required && <span className="text-destructive"> *</span>}
       </label>
       <div>
         {control && options && (

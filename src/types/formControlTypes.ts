@@ -2,6 +2,7 @@ export type InputTypesT = "text" | "password" | "button" | "number" | "date";
 export interface ElementI {
   name: string;
   customClass?: string;
+  required?: boolean;
   props?: any;
 }
 

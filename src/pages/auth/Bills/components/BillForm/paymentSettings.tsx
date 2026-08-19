@@ -59,6 +59,7 @@ export default function PaymentSettings() {
             control={control}
             label={{
               name: "Payment Method",
+              required: true,
             }}
             name="default_payment"
             input={{
@@ -72,6 +73,7 @@ export default function PaymentSettings() {
           <div className="flex flex-col gap-2">
             <label className="text-sm font-medium text-muted-foreground">
               Status
+              <span className="text-destructive"> *</span>
             </label>
             <Controller
               control={control}

@@ -8,6 +8,7 @@ export default function FormControl({ label, input }: FormControlI) {
         className={`${label.customClass ?? "font-medium text-muted-foreground"} `}
       >
         {label.name}
+        {label.required && <span className="text-destructive"> *</span>}
       </label>
       <input
         {...input.props}

@@ -69,7 +69,10 @@ const BillingDetails = () => {
           </div>
         )}
         <Field>
-          <FieldLabel>Amount (Pesos)</FieldLabel>
+          <FieldLabel>
+            Amount (Pesos)
+            <span className="text-destructive"> *</span>
+          </FieldLabel>
           <InputGroup>
             <InputGroupAddon className="border-r border-input bg-muted/60 font-semibold text-foreground">
               ₱
@@ -86,7 +89,7 @@ const BillingDetails = () => {
         </Field>
         <div className="grid grid-cols-2 gap-x-4">
           <FormControl
-            label={{ name: "Start Date" }}
+            label={{ name: "Start Date", required: true }}
             input={{
               name: "billing_date",
               placeholder: "Billing Date",
@@ -99,7 +102,7 @@ const BillingDetails = () => {
             }}
           />
           <FormControl
-            label={{ name: "End Date" }}
+            label={{ name: "End Date", required: true }}
             input={{
               name: "end_date",
               placeholder: "End Date",
@@ -116,6 +119,7 @@ const BillingDetails = () => {
           control={control}
           label={{
             name: "Frequency",
+            required: true,
           }}
           name="frequency"
           input={{

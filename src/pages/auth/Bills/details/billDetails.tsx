@@ -34,6 +34,11 @@ import BillFormWizard from "../components/BillForm/billFormWizard";
 import { extractRawHttpError } from "@c/utils/axios-error.util";
 import { SuccessAlert } from "@c/components/alerts/SuccessAlert";
 import { ModalContextService } from "@c/context/ModalContext";
+import {
+  currency_formatter,
+  get_future_date,
+  today_date,
+} from "@c/utils/utilities.util";
 
 const LogPaymentHeader = ({ isFullyPaid }: { isFullyPaid: boolean }) => {
   return (
@@ -106,7 +111,7 @@ export default function BillDetails() {
 
   const { details, getCallback } = useBillDetail();
   const { formMethod, onDelete, setFormMode } = useBillContext();
-  const { onOpen, configureModal } = useModal();
+  const { onOpen, onClose, configureModal } = useModal();
   const {
     onOpen: onConfirmOpen,
     confirmModalConfig,
@@ -132,13 +137,15 @@ export default function BillDetails() {
     register: LogRegister,
     setValue: LogSetValue,
     getValues: LogGetValues,
+    trigger: LogTrigger,
     reset: LogReset,
+    setError: LogSetError,
+    clearErrors: LogClearErrors,
   } = useForm<LogPaymentType>({
     resolver: zodResolver(logPaymentSchema),
     defaultValues: {
       payment_mode: "cash",
-      transaction_date:
-        details?.next_date_at ?? new Date().toISOString().split("T")[0],
+      transaction_date: today_date(),
       notes: "",
     },
   });
@@ -169,6 +176,7 @@ export default function BillDetails() {
   };
   const handleLogPayment = () => {
     const isFullyPaid = details?.status === "completed";
+    LogClearErrors();
     configureModal?.({
       header: <LogPaymentHeader isFullyPaid={isFullyPaid} />,
       size: "lg",
@@ -182,6 +190,30 @@ export default function BillDetails() {
         />
       ),
       submitEvent: async () => {
+        const isValid = await LogTrigger();
+        if (!isValid) return false;
+        LogClearErrors();
+
+        const paymentsCount = summary?.payments_count ?? 0;
+        const dueDate = details
+          ? get_future_date(
+              details.billing_date,
+              paymentsCount,
+              details.frequency,
+            )
+          : null;
+        const transactionDate = LogGetValues("transaction_date");
+        if (dueDate && transactionDate < dueDate) {
+          LogSetError("transaction_date", {
+            type: "validate",
+            message:
+              paymentsCount > 0
+                ? "You have already logged a payment for the current billing period."
+                : "Invalid transaction date",
+          });
+          return false;
+        }
+
         const data: ExtendedLogPayment = {
           billsId: String(id),
           amount: LogGetValues("amount"),
@@ -189,38 +221,55 @@ export default function BillDetails() {
           transaction_date: LogGetValues("transaction_date"),
           notes: LogGetValues("notes"),
         };
-        await createTransaction_API(data)
-          .then((result) => {
-            if (result?.status) {
-              if (id) {
-                getCallback(id);
-                getTransactions(id, {
-                  page: 1,
-                  per_page: TRANSACTION_PAGE_SIZE,
+
+        confirmModalConfig({
+          title: "Log this payment?",
+          description: `This will record a ${currency_formatter(data.amount)} payment for this bill.`,
+        });
+        handleConfirm(() => {
+          createTransaction_API(data)
+            .then((result) => {
+              if (result?.status) {
+                if (id) {
+                  getCallback(id);
+                  getTransactions(id, {
+                    page: 1,
+                    per_page: TRANSACTION_PAGE_SIZE,
+                  });
+                }
+                showToast({
+                  message: "Payment logged successfully.",
+                  variant: "success",
+                  action: {
+                    label: "View Transactions",
+                    onClick: () =>
+                      navigate(`/expense/bills/${id}/transactions`),
+                  },
                 });
+                onClose();
+              } else {
+                const message = result?.message ?? "Failed to log payment.";
+                LogSetError("root.serverError", { type: "server", message });
+                showToast({ message, variant: "danger" });
               }
-              showToast({
-                message: "Payment logged successfully.",
-                variant: "success",
-                action: {
-                  label: "View Transactions",
-                  onClick: () => navigate(`/expense/bills/${id}/transactions`),
+            })
+            .catch((err) => {
+              const httpError = extractRawHttpError(err);
+              const message = httpError?.message ?? "Failed to log payment.";
+              Object.entries(httpError?.data ?? {}).forEach(
+                ([field, messages]) => {
+                  LogSetError(field as keyof LogPaymentType, {
+                    type: "server",
+                    message: messages?.[0] ?? message,
+                  });
                 },
-              });
-            } else {
-              showToast({
-                message: result?.message ?? "Failed to log payment.",
-                variant: "danger",
-              });
-            }
-          })
-          .catch((err) => {
-            const errors = extractRawHttpError(err);
-            showToast({
-              message: errors?.message ?? "Failed to log payment.",
-              variant: "danger",
+              );
+              LogSetError("root.serverError", { type: "server", message });
+              showToast({ message, variant: "danger" });
             });
-          });
+        });
+        onConfirmOpen();
+        return false;
       },
     });
     onOpen();
@@ -273,7 +322,7 @@ export default function BillDetails() {
       LogReset((rest) => ({
         ...rest,
         payment_mode: details?.default_payment ?? "cash",
-        transaction_date: details?.next_date_at ?? "",
+        transaction_date: today_date(),
       }));
     }
   }, [details, formMethod?.reset]);

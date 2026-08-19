@@ -10,6 +10,7 @@ import type { HTMLInputTypeAttribute } from "react";
 interface FormControlFieldI {
   label: string;
   labelClassName?: string;
+  required?: boolean;
 
   type: HTMLInputTypeAttribute;
   inputClassName?: string;
@@ -21,6 +22,7 @@ interface FormControlFieldI {
 export default function FormControlField({
   label,
   labelClassName,
+  required,
   placeHolder,
   type,
   inputClassName,
@@ -30,7 +32,10 @@ export default function FormControlField({
 }: FormControlFieldI) {
   return (
     <Field>
-      <FieldLabel className={`${labelClassName}`}>{label}</FieldLabel>
+      <FieldLabel className={`${labelClassName}`}>
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </FieldLabel>
       <Input
         type={type}
         placeholder={placeHolder}

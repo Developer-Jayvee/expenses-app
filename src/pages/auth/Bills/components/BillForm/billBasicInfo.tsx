@@ -26,6 +26,7 @@ const BillBasicInfo = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.4fr_1fr]">
           <FormControlField
             label="Bill Title"
+            required
             type="text"
             placeHolder="e.g Rent"
             props={register?.("name")}
@@ -35,6 +36,7 @@ const BillBasicInfo = () => {
             control={control}
             label={{
               name: "Category",
+              required: true,
             }}
             name="category"
             input={{

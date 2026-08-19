@@ -61,10 +61,9 @@ export default function Modal({ showCloseButton = false }: ModalI) {
                     variant="primary"
                     type="submit"
                     disabled={modalSetting?.disableSubmit}
-                    onClick={() => {
-                      try {
-                        modalSetting?.submitEvent?.();
-                      } finally {
+                    onClick={async () => {
+                      const result = await modalSetting?.submitEvent?.();
+                      if (result !== false) {
                         onClose();
                       }
                     }}

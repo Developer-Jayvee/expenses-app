@@ -55,6 +55,28 @@ export const add_years = (date: string, years: number): string => {
 };
 
 /**
+ * Mirrors the backend's DateHelper::getFutureDate — advances `date` by
+ * `count` steps of `frequency`. "once" (and any unrecognized frequency)
+ * returns `date` unchanged, same as the backend's default case.
+ */
+export const get_future_date = (
+  date: string,
+  count: number,
+  frequency: FrequencyTypes,
+): string => {
+  switch (frequency) {
+    case "daily":
+      return add_days(date, count);
+    case "monthly":
+      return add_months(date, count);
+    case "yearly":
+      return add_years(date, count);
+    default:
+      return date;
+  }
+};
+
+/**
  * Which frequencies are selectable for a given start/end date pair.
  * Tomorrow -&gt; once only. &lt;1 month -&gt; daily. &lt;1 year -&gt; monthly/daily.
  * &gt;=1 year -&gt; monthly/yearly/daily. Invalid range -&gt; none.

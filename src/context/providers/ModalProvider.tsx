@@ -19,7 +19,7 @@ interface ModalSettingI<T extends FieldValues = BillFormSchema> {
   description?: string;
   type?: ModalTypes;
   content?: React.ReactNode | null;
-  submitEvent?: () => void;
+  submitEvent?: () => boolean | void | Promise<boolean | void>;
   size?: ModalSizes;
   showFooter?: boolean;
   useFormMethods?: UseFormReturn<T> | null;
