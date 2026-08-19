@@ -19,7 +19,7 @@ export default function BillTable({ bills, onOpen, onDelete }: BillCardsGridI) {
     );
   }
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(260px,1fr))] gap-4">
       {bills.map((item) => (
         <BillCard
           key={item.id}

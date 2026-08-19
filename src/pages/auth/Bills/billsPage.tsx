@@ -131,21 +131,33 @@ export default function BillsPage() {
   }, [bills]);
 
   return (
-    <div className="flex w-full flex-col gap-5 p-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex w-full flex-col gap-4 p-4 sm:gap-5 sm:p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Bills</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Bills
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your recurring bills — {bills.length.toLocaleString()}{" "}
             tracked.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" onClick={handleExport}>
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1 sm:flex-none"
+            onClick={handleExport}
+          >
             <FiDownload size={15} />
             Export CSV
           </Button>
-          <Button type="button" variant="primary" onClick={handleCreate}>
+          <Button
+            type="button"
+            variant="primary"
+            className="flex-1 sm:flex-none"
+            onClick={handleCreate}
+          >
             <BiPlus size={17} />
             New Bill
           </Button>

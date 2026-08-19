@@ -28,15 +28,22 @@ export default function DashboardPage() {
   if (!summary) return null;
 
   return (
-    <div className="flex w-full flex-col gap-5 p-5">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex w-full flex-col gap-4 p-4 sm:gap-5 sm:p-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+            Dashboard
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Spending overview for {summary.year}.
           </p>
         </div>
-        <Button type="button" variant="outline" onClick={() => refresh()}>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full sm:w-auto"
+          onClick={() => refresh()}
+        >
           Refresh
         </Button>
       </div>

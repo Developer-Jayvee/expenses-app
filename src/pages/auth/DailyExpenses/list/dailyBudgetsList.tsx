@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
+import DailyBudgetCard from "../components/dailyBudgetCard";
 import type { DailyBudgetI } from "@c/types/dailyExpenseTypes";
 import {
   currency_formatter,
@@ -31,8 +32,8 @@ export default function DailyBudgetsList({
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card">
-      <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3.5">
-        <div className="relative min-w-55 flex-1">
+      <div className="flex flex-col gap-3 border-b px-4 py-3.5 sm:flex-row sm:items-center">
+        <div className="relative min-w-0 flex-1">
           <IoSearchOutline
             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
             size={15}
@@ -41,14 +42,14 @@ export default function DailyBudgetsList({
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Search past transactions…"
-            className="h-10 pl-9"
+            className="h-10 w-full pl-9"
           />
         </div>
         <Input
           type="date"
           value={date}
           onChange={(e) => onDateChange(e.target.value)}
-          className="h-10 w-auto"
+          className="h-10 w-full sm:w-auto"
         />
       </div>
 
@@ -60,45 +61,62 @@ export default function DailyBudgetsList({
           </span>
         </div>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              <TableHead>Transaction</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead className="text-right">Budget</TableHead>
-              <TableHead className="text-right">Spent</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        <>
+          <div className="flex flex-col gap-3 p-4 sm:hidden">
             {filtered.map((budget) => (
-              <TableRow
+              <DailyBudgetCard
                 key={budget.id}
-                className="cursor-pointer"
-                onClick={() => onView(budget.id)}
-              >
-                <TableCell className="font-semibold">{budget.name}</TableCell>
-                <TableCell className="text-sm text-muted-foreground">
-                  {date_formatter(new Date(budget.budget_date))}
-                </TableCell>
-                <TableCell className="text-right font-mono text-sm font-semibold">
-                  {currency_formatter(budget.budget_amount)}
-                </TableCell>
-                <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                  {currency_formatter(budget.total_spent)}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    className={daily_budget_status_pill_class(budget.status)}
-                  >
-                    <span className="size-1.5 rounded-full bg-current" />
-                    {budget.status_label}
-                  </Badge>
-                </TableCell>
-              </TableRow>
+                budget={budget}
+                onView={onView}
+              />
             ))}
-          </TableBody>
-        </Table>
+          </div>
+          <div className="hidden sm:block">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Transaction</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Budget</TableHead>
+                  <TableHead className="text-right">Spent</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((budget) => (
+                  <TableRow
+                    key={budget.id}
+                    className="cursor-pointer"
+                    onClick={() => onView(budget.id)}
+                  >
+                    <TableCell className="font-semibold">
+                      {budget.name}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {date_formatter(new Date(budget.budget_date))}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-sm font-semibold">
+                      {currency_formatter(budget.budget_amount)}
+                    </TableCell>
+                    <TableCell className="text-right font-mono text-sm text-muted-foreground">
+                      {currency_formatter(budget.total_spent)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        className={daily_budget_status_pill_class(
+                          budget.status,
+                        )}
+                      >
+                        <span className="size-1.5 rounded-full bg-current" />
+                        {budget.status_label}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </div>
   );

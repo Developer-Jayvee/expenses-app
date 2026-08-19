@@ -74,8 +74,8 @@ export default function BillsList() {
 
   return (
     <div className="flex flex-col overflow-hidden rounded-2xl border bg-card">
-      <div className="flex flex-wrap items-center gap-3 border-b px-4 py-3.5">
-        <div className="relative min-w-55 flex-1">
+      <div className="flex flex-col gap-3 border-b px-4 py-3.5 lg:flex-row lg:flex-wrap lg:items-center">
+        <div className="relative min-w-0 flex-1 lg:min-w-55">
           <IoSearchOutline
             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
             size={15}
@@ -84,86 +84,101 @@ export default function BillsList() {
             value={query}
             onChange={(e) => onQueryChange(e.target.value)}
             placeholder="Search biller or category…"
-            className="h-10 pl-9"
+            className="h-10 w-full pl-9"
           />
         </div>
 
-        <Tabs
-          value={status}
-          onValueChange={(value) => onStatusChange(value as BillStatusFilterT)}
-        >
-          <TabsList>
-            {STATUS_TABS.map((tab) => (
-              <TabsTrigger key={tab.key} value={tab.key}>
-                {tab.label}
-                <span className="text-[11px] font-bold opacity-60 tabular-nums">
-                  {counts[tab.key] ?? 0}
-                </span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
-
-        <select
-          value={sort}
-          onChange={(e) => onSortChange(e.target.value as BillSortT)}
-          className="h-10 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-input/30"
-        >
-          <option value="due">Sort: Next due</option>
-          <option value="amountDesc">Sort: Amount (high→low)</option>
-          <option value="amountAsc">Sort: Amount (low→high)</option>
-          <option value="name">Sort: Biller A→Z</option>
-        </select>
-
-        <div className="flex gap-1 rounded-lg bg-muted p-1">
-          <button
-            type="button"
-            onClick={() => onViewChange("table")}
-            className={`h-8 rounded-md px-3 text-sm font-semibold transition-colors ${
-              view === "table"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground"
-            }`}
+        <div className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:overflow-visible lg:px-0">
+          <Tabs
+            value={status}
+            onValueChange={(value) =>
+              onStatusChange(value as BillStatusFilterT)
+            }
           >
-            Table
-          </button>
-          <button
-            type="button"
-            onClick={() => onViewChange("cards")}
-            className={`h-8 rounded-md px-3 text-sm font-semibold transition-colors ${
-              view === "cards"
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground"
-            }`}
+            <TabsList>
+              {STATUS_TABS.map((tab) => (
+                <TabsTrigger key={tab.key} value={tab.key}>
+                  {tab.label}
+                  <span className="text-[11px] font-bold opacity-60 tabular-nums">
+                    {counts[tab.key] ?? 0}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <div className="flex gap-2">
+          <select
+            value={sort}
+            onChange={(e) => onSortChange(e.target.value as BillSortT)}
+            className="h-10 flex-1 rounded-lg border border-input bg-transparent px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 lg:flex-none dark:bg-input/30"
           >
-            Cards
-          </button>
+            <option value="due">Sort: Next due</option>
+            <option value="amountDesc">Sort: Amount (high→low)</option>
+            <option value="amountAsc">Sort: Amount (low→high)</option>
+            <option value="name">Sort: Biller A→Z</option>
+          </select>
+
+          <div className="hidden gap-1 rounded-lg bg-muted p-1 sm:flex">
+            <button
+              type="button"
+              onClick={() => onViewChange("table")}
+              className={`h-8 rounded-md px-3 text-sm font-semibold transition-colors ${
+                view === "table"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Table
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewChange("cards")}
+              className={`h-8 rounded-md px-3 text-sm font-semibold transition-colors ${
+                view === "cards"
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground"
+              }`}
+            >
+              Cards
+            </button>
+          </div>
         </div>
       </div>
 
-      {view === "table" ? (
-        <BillsDataTable
+      <div className="p-4 sm:hidden">
+        <BillCardsGrid
           bills={pageItems}
           onOpen={handleOpen}
           onDelete={handleDelete}
         />
-      ) : (
-        <div className="p-4">
-          <BillCardsGrid
+      </div>
+      <div className="hidden sm:block">
+        {view === "table" ? (
+          <BillsDataTable
             bills={pageItems}
             onOpen={handleOpen}
             onDelete={handleDelete}
           />
-        </div>
-      )}
+        ) : (
+          <div className="p-4">
+            <BillCardsGrid
+              bills={pageItems}
+              onOpen={handleOpen}
+              onDelete={handleDelete}
+            />
+          </div>
+        )}
+      </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-muted/30 px-4 py-3">
+      <div className="flex flex-col items-stretch gap-3 border-t bg-muted/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
         <span className="text-xs text-muted-foreground">
           {filteredCount === 0
             ? "No results"
             : `Showing ${rangeStart}–${rangeEnd} of ${filteredCount} bills`}
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             Rows
             <select
