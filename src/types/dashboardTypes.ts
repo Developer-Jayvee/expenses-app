@@ -28,3 +28,15 @@ export interface DashboardSummaryI {
   bills_by_category: BillCategoryTotalI[];
   upcoming_bills: UpcomingBillI[];
 }
+
+export type ExpensesPeriodT = "monthly" | "weekly";
+
+export interface ExpensePointI {
+  label: string;
+  total: number;
+}
+
+export interface DashboardExpensesI {
+  period: ExpensesPeriodT;
+  data: ExpensePointI[];
+}
