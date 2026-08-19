@@ -2,17 +2,14 @@ import useDashboardHook from "@c/hooks/useDashboardHook";
 import MonthlyExpensesChart from "./components/monthlyExpensesChart";
 import BillsByCategoryChart from "./components/billsByCategoryChart";
 import UpcomingBillsTable from "./components/upcomingBillsTable";
+import DashboardSkeleton from "./components/dashboardSkeleton";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 
 export default function DashboardPage() {
   const { summary, isLoading, isError, refresh } = useDashboardHook();
 
   if (isLoading && !summary) {
-    return (
-      <div className="flex h-64 w-full items-center justify-center text-sm text-muted-foreground">
-        Loading dashboard…
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (isError && !summary) {
