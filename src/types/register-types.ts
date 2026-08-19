@@ -13,6 +13,11 @@ export const registerSchema = z
       .min(1, "Last name is required")
       .max(255, "Last name must be at most 255 characters"),
     email: z.email("Invalid email"),
+    invitation_code: z
+      .string()
+      .length(5, "Invitation code must be 5 characters")
+      .optional()
+      .or(z.literal("")),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters long")

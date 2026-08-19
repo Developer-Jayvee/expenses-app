@@ -12,6 +12,7 @@ export interface UserInterface {
   first_name: string;
   last_name: string;
   email: string;
+  group_code: string;
 }
 export interface PostLoginResponse {
   user: UserInterface;

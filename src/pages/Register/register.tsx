@@ -52,6 +52,13 @@ function RegisterForm() {
             props={{ ...register("email") }}
           />
           <AuthInputField
+            label="Invitation Code"
+            type="text"
+            placeholder="e.g. ASD23"
+            error={errors.invitation_code?.message}
+            props={{ ...register("invitation_code") }}
+          />
+          <AuthInputField
             label="Password"
             type="password"
             placeholder="********"

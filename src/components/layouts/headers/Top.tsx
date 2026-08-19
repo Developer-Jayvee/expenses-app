@@ -19,6 +19,8 @@ import {
 import useAuthHook from "@c/hooks/useAuthHook";
 import { ModalContextService } from "@c/context/ModalContext";
 import AuthService from "@c/services/AuthService";
+import { Badge } from "@c/lib/shadcn/components/ui/badge";
+import { useToast } from "@c/context/providers/ToastProvider";
 
 const NAV_LINKS = [
   { to: "dashboard", label: "Dashboard", icon: IoGridOutline },
@@ -31,6 +33,23 @@ export default function TopBar() {
   const { onOpen, confirmModalConfig, handleConfirm } =
     ModalContextService.confirmModal();
   const user = AuthService.getUserData();
+  const { showToast } = useToast();
+
+  const handleCopyGroupCode = async () => {
+    if (!user?.group_code) return;
+    try {
+      await navigator.clipboard.writeText(user.group_code);
+      showToast({
+        message: "Group code copied to clipboard.",
+        variant: "success",
+      });
+    } catch {
+      showToast({
+        message: "Failed to copy group code.",
+        variant: "danger",
+      });
+    }
+  };
 
   const confirmLogout = () => {
     onOpen();
@@ -73,40 +92,53 @@ export default function TopBar() {
         </nav>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger className="h-auto! w-auto! rounded-full! border-none! bg-transparent! p-0! shadow-none!">
-          <Avatar className="cursor-pointer">
-            <AvatarImage
-              src="https://api.dicebear.com/10.x/bottts/png"
-              alt={fullName || "User avatar"}
-            />
-            <AvatarFallback className="text-xs font-bold">
-              {initials || "U"}
-            </AvatarFallback>
-          </Avatar>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          <DropdownMenuGroup>
-            <DropdownMenuLabel className="font-normal">
-              <div className="flex flex-col gap-0.5">
-                <span className="truncate text-sm font-semibold text-foreground">
-                  {fullName || "Account"}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user?.email}
-                </span>
-              </div>
-            </DropdownMenuLabel>
-          </DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem onClick={() => confirmLogout()}>
-              <HiOutlineLogout size={15} />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-4">
+        {user?.group_code && (
+          <Badge
+            render={<button type="button" />}
+            variant="outline"
+            className="cursor-pointer"
+            onClick={handleCopyGroupCode}
+          >
+            {`GROUP CODE: ${user.group_code}`}
+          </Badge>
+        )}
+
+        <DropdownMenu>
+          <DropdownMenuTrigger className="h-auto! w-auto! rounded-full! border-none! bg-transparent! p-0! shadow-none!">
+            <Avatar className="cursor-pointer">
+              <AvatarImage
+                src="https://api.dicebear.com/10.x/bottts/png"
+                alt={fullName || "User avatar"}
+              />
+              <AvatarFallback className="text-xs font-bold">
+                {initials || "U"}
+              </AvatarFallback>
+            </Avatar>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col gap-0.5">
+                  <span className="truncate text-sm font-semibold text-foreground">
+                    {fullName || "Account"}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {user?.email}
+                  </span>
+                </div>
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={() => confirmLogout()}>
+                <HiOutlineLogout size={15} />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }

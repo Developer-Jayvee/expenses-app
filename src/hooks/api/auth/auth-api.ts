@@ -32,6 +32,7 @@ export const registerAPI = async ({
   first_name,
   last_name,
   email,
+  invitation_code,
   password,
   password_confirmation,
 }: PostRegister): Promise<PostRegisterResponse> => {
@@ -39,6 +40,7 @@ export const registerAPI = async ({
     first_name,
     last_name,
     email,
+    invitation_code,
     password,
     password_confirmation,
   });
