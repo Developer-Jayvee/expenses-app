@@ -1,8 +1,9 @@
-# Expenses Frontend
+# Coinpath Frontend
 
-React 19 + TypeScript + Vite SPA for the Expenses budgeting app. Tailwind
-CSS v4, shadcn/ui (on `@base-ui/react`), React Router v8, TanStack Query,
-react-hook-form + zod, axios. Pair it with the `expenses-be/` Laravel API.
+Bills, expenses, and where the money is heading. React 19 + TypeScript +
+Vite SPA for Coinpath. Tailwind CSS v4, shadcn/ui (on `@base-ui/react`),
+React Router v8, TanStack Query, react-hook-form + zod, axios. Pair it with
+the `expenses-be/` Laravel API.
 
 ## Requirements
 

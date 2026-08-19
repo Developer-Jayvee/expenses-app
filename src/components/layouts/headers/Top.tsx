@@ -70,7 +70,7 @@ export default function TopBar() {
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between gap-2 border-b bg-card px-3 sm:gap-4 sm:px-5">
         <div className="flex items-center gap-3 sm:gap-6">
           <h1 className="text-sm font-bold tracking-tight sm:text-base">
-            Budget Expenses
+            Coinpath
           </h1>
           <nav className="hidden md:block">
             <ul className="flex items-center gap-1">

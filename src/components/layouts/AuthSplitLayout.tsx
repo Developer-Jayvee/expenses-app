@@ -33,9 +33,7 @@ export default function AuthSplitLayout({ children }: AuthSplitLayoutProps) {
           <div className="profile-icon-bg flex size-7 items-center justify-center rounded-lg font-bold">
             $
           </div>
-          <span className="text-base font-bold tracking-tight">
-            Budget Expenses
-          </span>
+          <span className="text-base font-bold tracking-tight">Coinpath</span>
         </div>
 
         <div className="flex flex-col gap-8">
