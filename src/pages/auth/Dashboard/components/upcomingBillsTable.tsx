@@ -26,7 +26,7 @@ interface UpcomingBillsTableI {
 }
 
 export default function UpcomingBillsTable({ bills }: UpcomingBillsTableI) {
-  const total = bills.reduce((sum, bill) => sum + bill.amount, 0);
+  const total = bills ? bills.reduce((sum, bill) => sum + bill.amount, 0) : 0;
 
   return (
     <Card>

@@ -31,12 +31,13 @@ interface SliceI extends BillCategoryTotalI {
 }
 
 function buildSlices(data: BillCategoryTotalI[]): SliceI[] {
+  if (!data) return [];
   const total = data.reduce((sum, item) => sum + item.total, 0);
   if (total <= 0) return [];
 
   const top = data.slice(0, MAX_SLICES);
   const rest = data.slice(MAX_SLICES);
-  const otherTotal = rest.reduce((sum, item) => sum + item.total, 0);
+  const otherTotal = rest ? rest.reduce((sum, item) => sum + item.total, 0) : 0;
 
   const slices: SliceI[] = top.map((item, index) => ({
     ...item,
@@ -75,7 +76,7 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
 
 export default function BillsByCategoryChart({ data }: BillsByCategoryChartI) {
   const slices = useMemo(() => buildSlices(data), [data]);
-  const total = slices.reduce((sum, item) => sum + item.total, 0);
+  const total = slices ? slices.reduce((sum, item) => sum + item.total, 0) : 0;
 
   return (
     <Card>

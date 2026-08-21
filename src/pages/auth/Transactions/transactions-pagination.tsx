@@ -25,7 +25,7 @@ const getPageEntries = (current: number, last: number): PageEntry[] => {
     .filter((page) => page >= 1 && page <= last)
     .sort((a, b) => a - b);
 
-  return pages.reduce<PageEntry[]>((entries, page, index) => {
+  return (pages ?? []).reduce<PageEntry[]>((entries, page, index) => {
     if (index > 0 && page - (pages[index - 1] as number) > 1) {
       entries.push("ellipsis");
     }

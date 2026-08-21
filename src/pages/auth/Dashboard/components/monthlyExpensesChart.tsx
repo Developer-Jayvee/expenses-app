@@ -54,7 +54,7 @@ export default function MonthlyExpensesChart({
   const { period, setPeriod, data, isLoadingWeekly } = useExpensesChartHook({
     monthlyData,
   });
-  const total = data.reduce((sum, item) => sum + item.total, 0);
+  const total = data ? data.reduce((sum, item) => sum + item.total, 0) : 0;
 
   return (
     <Card>
