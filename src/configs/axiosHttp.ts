@@ -10,7 +10,8 @@ const http = axios.create({
   },
   withCredentials: true,
 });
-
+console.log(http.defaults.baseURL);
+console.log("GET URI:", http.getUri({ url: "login" }));
 http.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error),
