@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { CiTrash } from "react-icons/ci";
 import { BiPlus } from "react-icons/bi";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 import { Card } from "@c/lib/shadcn/components/ui/card";
+import { Input } from "@c/lib/shadcn/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,6 +13,7 @@ import {
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
 import type { DailyBudgetI, DailyExpenseI } from "@c/types/dailyExpenseTypes";
+import type { ChecklistGroupI, ChecklistItemI } from "@c/types/checklistTypes";
 import { currency_formatter, date_formatter } from "@c/utils/utilities.util";
 
 interface StatCellI {
@@ -37,6 +40,9 @@ interface ActiveSessionViewI {
   onDeleteExpense?: (expense: DailyExpenseI) => void;
   onDone?: () => void;
   onCancel?: () => void;
+  checklistGroups?: ChecklistGroupI[];
+  onSelectGroup?: (id: string | number) => Promise<ChecklistGroupI | null>;
+  onUseChecklistItem?: (name: string, amount: number) => void;
 }
 
 export default function ActiveSessionView({
@@ -46,7 +52,40 @@ export default function ActiveSessionView({
   onDeleteExpense,
   onDone,
   onCancel,
+  checklistGroups,
+  onSelectGroup,
+  onUseChecklistItem,
 }: ActiveSessionViewI) {
+  const [selectedGroupId, setSelectedGroupId] = useState<string | number | "">(
+    "",
+  );
+  const [selectedItems, setSelectedItems] = useState<ChecklistItemI[]>([]);
+  const [itemAmounts, setItemAmounts] = useState<Record<string, string>>({});
+
+  const handleSelectGroup = async (value: string) => {
+    setSelectedGroupId(value);
+    if (!value || !onSelectGroup) {
+      setSelectedItems([]);
+      setItemAmounts({});
+      return;
+    }
+    try {
+      const group = await onSelectGroup(value);
+      const items = group?.items ?? [];
+      setSelectedItems(items);
+      const amounts: Record<string, string> = {};
+      items.forEach((item) => {
+        amounts[String(item.id)] = String(
+          Number(item.estimated_price ?? 0) * Number(item.quantity ?? 1),
+        );
+      });
+      setItemAmounts(amounts);
+    } catch {
+      setSelectedItems([]);
+      setItemAmounts({});
+    }
+  };
+
   const isNegative = Number(budget.remaining_budget) < 0;
   const canCancel =
     Number(budget.remaining_budget) === Number(budget.budget_amount);
@@ -97,6 +136,62 @@ export default function ActiveSessionView({
           />
         </div>
       </Card>
+
+      {!readOnly && (checklistGroups ?? []).length > 0 && (
+        <Card className="gap-3 rounded-2xl p-4">
+          <h3 className="text-sm font-semibold text-muted-foreground">
+            Use Checklist
+          </h3>
+          <select
+            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring"
+            value={selectedGroupId}
+            onChange={(e) => handleSelectGroup(e.target.value)}
+          >
+            <option value="">Select a checklist…</option>
+            {(checklistGroups ?? []).map((group) => (
+              <option key={group.id} value={group.id}>
+                {group.title}
+              </option>
+            ))}
+          </select>
+          {(selectedItems ?? []).length > 0 && (
+            <div className="flex flex-col gap-2">
+              {(selectedItems ?? []).map((item) => (
+                <div key={item.id} className="flex items-center gap-2">
+                  <span className="flex-1 truncate text-sm">
+                    {item.item_name}
+                  </span>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    className="w-28"
+                    value={itemAmounts[String(item.id)] ?? ""}
+                    onChange={(e) =>
+                      setItemAmounts((prev) => ({
+                        ...prev,
+                        [String(item.id)]: e.target.value,
+                      }))
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      onUseChecklistItem?.(
+                        item.item_name,
+                        Number(itemAmounts[String(item.id)] ?? 0),
+                      )
+                    }
+                  >
+                    Add
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      )}
 
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-muted-foreground">

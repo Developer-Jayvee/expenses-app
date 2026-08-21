@@ -1,5 +1,6 @@
 import AuthProvider from "@c/context/providers/AuthProvider";
 import BillsProvider from "@c/context/providers/BillsProvider";
+import ChecklistProvider from "@c/context/providers/ChecklistProvider";
 import ConfirmModalProvider from "@c/context/providers/ConfirmModalProvider";
 import { ModalProvider } from "@c/context/providers/ModalProvider";
 import { ReferenceContextProvider } from "@c/context/providers/ReferenceProvider";
@@ -29,11 +30,13 @@ export default function Authenticated() {
         <AuthLayout>
           <AuthProvider>
             <BillsProvider>
-              <ModalProvider>
-                <ReferenceContextProvider>
-                  <Outlet />
-                </ReferenceContextProvider>
-              </ModalProvider>
+              <ChecklistProvider>
+                <ModalProvider>
+                  <ReferenceContextProvider>
+                    <Outlet />
+                  </ReferenceContextProvider>
+                </ModalProvider>
+              </ChecklistProvider>
             </BillsProvider>
           </AuthProvider>
         </AuthLayout>

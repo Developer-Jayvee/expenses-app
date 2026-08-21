@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { BiPlus } from "react-icons/bi";
 import { useModal } from "@c/context/providers/ModalProvider";
 import { ModalContextService } from "@c/context/ModalContext";
+import { useChecklistContext } from "@c/context/providers/ChecklistProvider";
+import ChecklistExpenseNav from "@c/components/ChecklistExpenseNav";
 import useDailyExpensesHook from "@c/hooks/useDailyExpensesHook";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 import {
@@ -12,7 +14,12 @@ import StartTransactionModal from "./components/StartTransactionModal";
 import AddExpenseModal from "./components/AddExpenseModal";
 import ActiveSessionView from "./components/ActiveSessionView";
 import DailyBudgetsList from "./list/dailyBudgetsList";
-import type { DailyBudgetI, DailyExpenseI } from "@c/types/dailyExpenseTypes";
+import type {
+  DailyBudgetI,
+  DailyExpenseI,
+  ExpenseFormT,
+} from "@c/types/dailyExpenseTypes";
+import { getDefaultExpenseFormValues } from "@c/types/dailyExpenseTypes";
 import {
   daily_budget_is_same_day_session,
   date_formatter,
@@ -63,6 +70,11 @@ export default function DailyExpensesPage() {
     continueBudget,
     deleteBudget,
   } = useDailyExpensesHook();
+  const {
+    groupList: checklistGroups,
+    fetchList: fetchChecklistGroups,
+    getGroupDetails,
+  } = useChecklistContext();
   const { configureModal, onOpen } = useModal();
   const {
     onOpen: onConfirmOpen,
@@ -73,7 +85,12 @@ export default function DailyExpensesPage() {
   useEffect(() => {
     fetchActiveBudget();
     fetchList();
+    fetchChecklistGroups();
   }, []);
+
+  const handleUseChecklistItem = (name: string, amount: number) => {
+    handleAddExpense({ name, amount: String(amount) });
+  };
 
   const handleStartTransaction = () => {
     startBudgetForm.reset();
@@ -93,8 +110,8 @@ export default function DailyExpensesPage() {
     onOpen();
   };
 
-  const handleAddExpense = () => {
-    expenseForm.reset();
+  const handleAddExpense = (prefill?: Partial<ExpenseFormT>) => {
+    expenseForm.reset({ ...getDefaultExpenseFormValues(), ...prefill });
     configureModal?.({
       type: "general",
       showFooter: false,
@@ -223,13 +240,18 @@ export default function DailyExpensesPage() {
         )}
       </div>
 
+      <ChecklistExpenseNav />
+
       {daily_budget_is_same_day_session(activeBudget) ? (
         <ActiveSessionView
           budget={activeBudget}
-          onAddExpense={handleAddExpense}
+          onAddExpense={() => handleAddExpense()}
           onDeleteExpense={handleDeleteExpense}
           onDone={handleDone}
           onCancel={handleCancel}
+          checklistGroups={checklistGroups}
+          onSelectGroup={getGroupDetails}
+          onUseChecklistItem={handleUseChecklistItem}
         />
       ) : (
         <DailyBudgetsList

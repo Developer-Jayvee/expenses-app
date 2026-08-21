@@ -1,5 +1,5 @@
 import { IoGridOutline } from "react-icons/io5";
-import { MdNewspaper, MdOutlineReceiptLong } from "react-icons/md";
+import { MdChecklist, MdNewspaper, MdOutlineReceiptLong } from "react-icons/md";
 import { HiOutlineLogout } from "react-icons/hi";
 import { NavLink } from "react-router";
 import {
@@ -26,6 +26,7 @@ const NAV_LINKS = [
   { to: "dashboard", label: "Dashboard", icon: IoGridOutline },
   { to: "bills", label: "Bills", icon: MdNewspaper },
   { to: "daily-expenses", label: "Daily Expenses", icon: MdOutlineReceiptLong },
+  { to: "checklist", label: "Checklist", icon: MdChecklist },
 ];
 
 export default function TopBar() {
@@ -69,7 +70,8 @@ export default function TopBar() {
     <>
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between gap-2 border-b bg-card px-3 sm:gap-4 sm:px-5">
         <div className="flex items-center gap-3 sm:gap-6">
-          <h1 className="text-sm font-bold tracking-tight sm:text-base">
+          <h1 className="flex items-center gap-2 text-sm font-bold tracking-tight sm:text-base">
+            <img src="/favicon.svg" alt="Coinpath" className="h-5 w-5" />
             Coinpath
           </h1>
           <nav className="hidden md:block">
@@ -145,7 +147,7 @@ export default function TopBar() {
         </div>
       </header>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
         {NAV_LINKS.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}

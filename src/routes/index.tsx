@@ -28,6 +28,10 @@ const DailyExpensesPage = lazy(
   () => import("@c/pages/auth/DailyExpenses/dailyExpensesPage"),
 );
 
+const ChecklistPage = lazy(
+  () => import("@c/pages/auth/Checklist/checklistPage"),
+);
+
 const Router = createBrowserRouter([
   {
     path: "/",
@@ -90,6 +94,10 @@ const Router = createBrowserRouter([
       {
         path: "daily-expenses",
         element: <DailyExpensesPage />,
+      },
+      {
+        path: "checklist",
+        element: <ChecklistPage />,
       },
     ],
   },
