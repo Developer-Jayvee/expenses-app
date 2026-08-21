@@ -26,20 +26,21 @@ interface UpcomingBillsTableI {
 }
 
 export default function UpcomingBillsTable({ bills }: UpcomingBillsTableI) {
-  const total = bills ? bills.reduce((sum, bill) => sum + bill.amount, 0) : 0;
+  const safeBills = bills ?? [];
+  const total = safeBills.reduce((sum, bill) => sum + (bill?.amount ?? 0), 0);
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Upcoming Bills This Month</CardTitle>
         <CardDescription>
-          {bills.length === 0
+          {safeBills.length === 0
             ? "Nothing due this month."
-            : `${bills.length} ${bills.length === 1 ? "bill" : "bills"} due · ${currency_formatter(total)} total`}
+            : `${safeBills.length} ${safeBills.length === 1 ? "bill" : "bills"} due · ${currency_formatter(total)} total`}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {bills.length === 0 ? (
+        {safeBills.length === 0 ? (
           <div className="flex flex-col items-center gap-1 py-10 text-center">
             <span className="text-sm font-semibold">All caught up</span>
             <span className="text-sm text-muted-foreground">
@@ -58,7 +59,7 @@ export default function UpcomingBillsTable({ bills }: UpcomingBillsTableI) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {bills.map((bill) => (
+              {safeBills.map((bill) => (
                 <TableRow key={bill.id}>
                   <TableCell className="text-sm font-semibold">
                     {bill.name}
@@ -67,7 +68,9 @@ export default function UpcomingBillsTable({ bills }: UpcomingBillsTableI) {
                     {bill.category_label ?? "Uncategorized"}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
-                    {date_formatter(bill.due_date as unknown as Date)}
+                    {bill.due_date
+                      ? date_formatter(bill.due_date as unknown as Date)
+                      : "—"}
                   </TableCell>
                   <TableCell>
                     <Badge className={bill_status_pill_class(bill.status)}>

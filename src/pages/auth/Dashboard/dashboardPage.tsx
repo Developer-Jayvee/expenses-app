@@ -27,6 +27,11 @@ export default function DashboardPage() {
 
   if (!summary) return null;
 
+  const year = summary.year ?? new Date().getFullYear();
+  const monthlyExpenses = summary.monthly_expenses ?? [];
+  const billsByCategory = summary.bills_by_category ?? [];
+  const upcomingBills = summary.upcoming_bills ?? [];
+
   return (
     <div className="flex w-full flex-col gap-4 p-4 sm:gap-5 sm:p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
@@ -35,7 +40,7 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Spending overview for {summary.year}.
+            Spending overview for {year}.
           </p>
         </div>
         <Button
@@ -49,14 +54,11 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-3.5 xl:grid-cols-2">
-        <MonthlyExpensesChart
-          data={summary.monthly_expenses}
-          year={summary.year}
-        />
-        <BillsByCategoryChart data={summary.bills_by_category} />
+        <MonthlyExpensesChart data={monthlyExpenses} year={year} />
+        <BillsByCategoryChart data={billsByCategory} />
       </div>
 
-      <UpcomingBillsTable bills={summary.upcoming_bills} />
+      <UpcomingBillsTable bills={upcomingBills} />
     </div>
   );
 }

@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { dashboardSummary_API } from "./api/dashboard-api";
+import {
+  dashboardSummary_API,
+  normalizeDashboardSummary,
+} from "./api/dashboard-api";
 import type { DashboardSummaryI } from "@c/types/dashboardTypes";
 import { LocalStorageClass } from "@c/utils/localStorage.util";
 
@@ -14,11 +17,12 @@ interface CachedDashboardI {
 const readCache = (): DashboardSummaryI | null => {
   if (!LocalStorageClass.isAlreadyStored(CACHE_KEY)) return null;
   try {
-    const cached = JSON.parse(
-      LocalStorageClass.getValue(CACHE_KEY) ?? "",
-    ) as CachedDashboardI;
+    const raw = LocalStorageClass.getValue(CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw) as Partial<CachedDashboardI> | null;
+    if (!cached || typeof cached.cachedAt !== "number") return null;
     if (Date.now() - cached.cachedAt > CACHE_TTL_MS) return null;
-    return cached.data;
+    return normalizeDashboardSummary(cached.data);
   } catch {
     return null;
   }

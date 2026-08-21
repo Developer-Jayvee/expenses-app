@@ -75,6 +75,7 @@ function ChartTooltip({ active, payload }: TooltipContentProps) {
 }
 
 export default function BillsByCategoryChart({ data }: BillsByCategoryChartI) {
+  const safeData = data ?? [];
   const slices = useMemo(() => buildSlices(data), [data]);
   const total = slices ? slices.reduce((sum, item) => sum + item.total, 0) : 0;
 
@@ -84,7 +85,7 @@ export default function BillsByCategoryChart({ data }: BillsByCategoryChartI) {
         <CardTitle>Bills by Category</CardTitle>
         <CardDescription>
           Share of total bill amount &middot; {currency_formatter(total)} across{" "}
-          {data.length} {data.length === 1 ? "category" : "categories"}
+          {safeData.length} {safeData.length === 1 ? "category" : "categories"}
         </CardDescription>
       </CardHeader>
       <CardContent>

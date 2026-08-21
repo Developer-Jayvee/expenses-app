@@ -13,6 +13,7 @@ interface UseExpensesChartHookI {
 export default function useExpensesChartHook({
   monthlyData,
 }: UseExpensesChartHookI) {
+  const safeMonthlyData = monthlyData ?? [];
   const [period, setPeriod] = useState<ExpensesPeriodT>("monthly");
   const [weeklyData, setWeeklyData] = useState<ExpensePointI[] | null>(null);
   const [isLoadingWeekly, setIsLoadingWeekly] = useState(false);
@@ -24,7 +25,10 @@ export default function useExpensesChartHook({
     setIsLoadingWeekly(true);
     dashboardExpenses_API("weekly")
       .then((response) => {
-        if (!cancelled) setWeeklyData(response.data);
+        if (!cancelled) setWeeklyData(response?.data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setWeeklyData([]);
       })
       .finally(() => {
         if (!cancelled) setIsLoadingWeekly(false);
@@ -38,7 +42,7 @@ export default function useExpensesChartHook({
   return {
     period,
     setPeriod,
-    data: period === "weekly" ? (weeklyData ?? []) : monthlyData,
+    data: period === "weekly" ? (weeklyData ?? []) : safeMonthlyData,
     isLoadingWeekly: period === "weekly" && isLoadingWeekly,
   };
 }
