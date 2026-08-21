@@ -18,27 +18,19 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@c/lib/shadcn/components/ui/dialog";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider } from "react-hook-form";
 import {
-  logPaymentSchema,
   TRANSACTION_PAGE_SIZE,
-  type ExtendedLogPayment,
-  type LogPaymentType,
   type TransactionResourceI,
 } from "@c/types/transactionTypes";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createTransaction_API } from "@c/hooks/api/transaction-api";
 import useTransactionHook from "@c/hooks/useTransactionHook";
 import { useBillContext } from "@c/context/providers/BillsProvider";
 import BillFormWizard from "../components/BillForm/billFormWizard";
-import { extractRawHttpError } from "@c/utils/axios-error.util";
 import { SuccessAlert } from "@c/components/alerts/SuccessAlert";
 import { ModalContextService } from "@c/context/ModalContext";
 import {
   currency_formatter,
   date_formatter,
-  get_periods_for_date,
-  get_transaction_date_bounds,
   period_unit_label,
   today_date,
 } from "@c/utils/utilities.util";
@@ -129,6 +121,10 @@ export default function BillDetails() {
     pendingDeleteIds,
     getTransactions,
     deleteTransaction,
+    logForm,
+    getPaymentDateBounds,
+    validateLogPaymentDate,
+    logPayment,
   } = useTransactionHook();
   const goToPage = (nextPage: number) => {
     if (!id) return;
@@ -140,18 +136,9 @@ export default function BillDetails() {
     register: LogRegister,
     setValue: LogSetValue,
     getValues: LogGetValues,
-    trigger: LogTrigger,
     reset: LogReset,
-    setError: LogSetError,
     clearErrors: LogClearErrors,
-  } = useForm<LogPaymentType>({
-    resolver: zodResolver(logPaymentSchema),
-    defaultValues: {
-      payment_mode: "cash",
-      transaction_date: today_date(),
-      notes: "",
-    },
-  });
+  } = logForm;
 
   const confirmDelete = () => {
     if (!id || isOngoing) return;
@@ -180,14 +167,7 @@ export default function BillDetails() {
   const handleLogPayment = () => {
     const isFullyPaid = details?.status === "completed";
     const paymentsCount = summary?.payments_count ?? 0;
-    const dateBounds = details
-      ? get_transaction_date_bounds(
-          details.billing_date,
-          paymentsCount,
-          details.frequency,
-          details.end_date,
-        )
-      : null;
+    const dateBounds = getPaymentDateBounds(details, paymentsCount);
     LogClearErrors();
     configureModal?.({
       header: <LogPaymentHeader isFullyPaid={isFullyPaid} />,
@@ -203,104 +183,51 @@ export default function BillDetails() {
         />
       ),
       submitEvent: async () => {
-        const isValid = await LogTrigger();
+        const isValid = await logForm.trigger();
         if (!isValid) return false;
         LogClearErrors();
 
+        const validation = validateLogPaymentDate(details, paymentsCount);
+        if (!validation) return false;
+        const { periods } = validation;
+
+        const amount = LogGetValues("amount");
         const transactionDate = LogGetValues("transaction_date");
-        if (dateBounds && transactionDate < dateBounds.min) {
-          LogSetError("transaction_date", {
-            type: "validate",
-            message:
-              paymentsCount > 0
-                ? "You have already logged a payment for the current billing period."
-                : "Invalid transaction date",
-          });
-          return false;
-        }
-        if (dateBounds && transactionDate > dateBounds.max) {
-          LogSetError("transaction_date", {
-            type: "validate",
-            message:
-              details && dateBounds.max === details.end_date
-                ? "Transaction date can't be later than the bill's end date."
-                : "Transaction date is too far in the future for this bill.",
-          });
-          return false;
-        }
-
-        const periods = details
-          ? get_periods_for_date(
-              details.billing_date,
-              paymentsCount,
-              details.frequency,
-              transactionDate,
-            )
-          : 1;
-
-        const data: ExtendedLogPayment = {
-          billsId: String(id),
-          amount: LogGetValues("amount"),
-          payment_mode: LogGetValues("payment_mode"),
-          transaction_date: LogGetValues("transaction_date"),
-          notes: LogGetValues("notes"),
-          periods,
-        };
-
         const isMultiPeriod = periods > 1;
         const unitLabel = period_unit_label(details?.frequency ?? "", periods);
         confirmModalConfig(
           isMultiPeriod
             ? {
                 title: `Log ${periods} ${unitLabel}?`,
-                description: `This date is ${periods} ${unitLabel} out — this will record ${periods} separate ${currency_formatter(data.amount)} payments for this bill, one per ${period_unit_label(details?.frequency ?? "", 1)}, through ${date_formatter(new Date(transactionDate))}.`,
+                description: `This date is ${periods} ${unitLabel} out — this will record ${periods} separate ${currency_formatter(amount)} payments for this bill, one per ${period_unit_label(details?.frequency ?? "", 1)}, through ${date_formatter(new Date(transactionDate))}.`,
               }
             : {
                 title: "Log this payment?",
-                description: `This will record a ${currency_formatter(data.amount)} payment for this bill.`,
+                description: `This will record a ${currency_formatter(amount)} payment for this bill.`,
               },
         );
-        handleConfirm(() => {
-          createTransaction_API(data)
-            .then((result) => {
-              if (result?.status) {
-                if (id) {
-                  getCallback(id);
-                  getTransactions(id, {
-                    page: 1,
-                    per_page: TRANSACTION_PAGE_SIZE,
-                  });
-                }
-                showToast({
-                  message: "Payment logged successfully.",
-                  variant: "success",
-                  action: {
-                    label: "View Transactions",
-                    onClick: () =>
-                      navigate(`/expense/bills/${id}/transactions`),
-                  },
-                });
-                onClose();
-              } else {
-                const message = result?.message ?? "Failed to log payment.";
-                LogSetError("root.serverError", { type: "server", message });
-                showToast({ message, variant: "danger" });
-              }
-            })
-            .catch((err) => {
-              const httpError = extractRawHttpError(err);
-              const message = httpError?.message ?? "Failed to log payment.";
-              Object.entries(httpError?.data ?? {}).forEach(
-                ([field, messages]) => {
-                  LogSetError(field as keyof LogPaymentType, {
-                    type: "server",
-                    message: messages?.[0] ?? message,
-                  });
-                },
-              );
-              LogSetError("root.serverError", { type: "server", message });
-              showToast({ message, variant: "danger" });
+        handleConfirm(async () => {
+          const result = await logPayment(String(id), periods);
+          if (result.success) {
+            if (id) {
+              getCallback(id);
+              getTransactions(id, {
+                page: 1,
+                per_page: TRANSACTION_PAGE_SIZE,
+              });
+            }
+            showToast({
+              message: result.message,
+              variant: "success",
+              action: {
+                label: "View Transactions",
+                onClick: () => navigate(`/expense/bills/${id}/transactions`),
+              },
             });
+            onClose();
+          } else {
+            showToast({ message: result.message, variant: "danger" });
+          }
         });
         onConfirmOpen();
         return false;

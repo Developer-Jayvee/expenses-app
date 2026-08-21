@@ -14,7 +14,10 @@ import { Field, FieldLabel } from "@c/lib/shadcn/components/ui/field";
 import { Input } from "@c/lib/shadcn/components/ui/input";
 import { Textarea } from "@c/lib/shadcn/components/ui/textarea";
 import FormControlField from "@c/components/FormControlField";
-import type { ChecklistGroupFormT } from "@c/types/checklistTypes";
+import {
+  checklistItemSchema,
+  type ChecklistGroupFormT,
+} from "@c/types/checklistTypes";
 import type { ErrorResponseI } from "@c/types/globalTypes";
 import { currency_formatter } from "@c/utils/utilities.util";
 
@@ -55,29 +58,30 @@ export default function ChecklistForm({
   const [itemErrors, setItemErrors] = useState<ItemErrorsI>({});
 
   const handleAddItem = () => {
-    const errors: ItemErrorsI = {};
-    if (!itemName.trim()) errors.item_name = "Item name is required.";
-    if (itemPrice.trim() === "" || Number(itemPrice) < 0) {
-      errors.estimated_price = "Estimated price must be 0 or greater.";
-    }
-    if (
-      itemQty.trim() === "" ||
-      !Number.isInteger(Number(itemQty)) ||
-      Number(itemQty) < 1
-    ) {
-      errors.quantity = "Quantity must be at least 1.";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      setItemErrors(errors);
-      return;
-    }
-
-    append({
+    const result = checklistItemSchema.safeParse({
       item_name: itemName.trim(),
       estimated_price: itemPrice,
       quantity: itemQty,
     });
+
+    if (!result.success) {
+      const errors: ItemErrorsI = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0];
+        if (
+          (field === "item_name" ||
+            field === "estimated_price" ||
+            field === "quantity") &&
+          !errors[field]
+        ) {
+          errors[field] = issue.message;
+        }
+      });
+      setItemErrors(errors);
+      return;
+    }
+
+    append(result.data);
     setItemName("");
     setItemPrice("");
     setItemQty("1");
