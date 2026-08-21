@@ -2,6 +2,7 @@ import { IoSearchOutline } from "react-icons/io5";
 import useDailyExpensesListHook from "@c/hooks/useDailyExpensesListHook";
 import { Input } from "@c/lib/shadcn/components/ui/input";
 import { Badge } from "@c/lib/shadcn/components/ui/badge";
+import { Button } from "@c/lib/shadcn/components/ui/button";
 import {
   Table,
   TableBody,
@@ -14,6 +15,8 @@ import DailyBudgetCard from "../components/dailyBudgetCard";
 import type { DailyBudgetI } from "@c/types/dailyExpenseTypes";
 import {
   currency_formatter,
+  daily_budget_display_status,
+  daily_budget_display_status_label,
   daily_budget_status_pill_class,
   date_formatter,
 } from "@c/utils/utilities.util";
@@ -21,11 +24,17 @@ import {
 interface DailyBudgetsListI {
   budgetList: Array<DailyBudgetI>;
   onView: (id: string | number) => void;
+  onContinue?: (budget: DailyBudgetI) => void;
+  onCloseTransaction?: (budget: DailyBudgetI) => void;
+  onDeleteTransaction?: (budget: DailyBudgetI) => void;
 }
 
 export default function DailyBudgetsList({
   budgetList,
   onView,
+  onContinue,
+  onCloseTransaction,
+  onDeleteTransaction,
 }: DailyBudgetsListI) {
   const { query, onQueryChange, date, onDateChange, filtered } =
     useDailyExpensesListHook(budgetList);
@@ -68,6 +77,9 @@ export default function DailyBudgetsList({
                 key={budget.id}
                 budget={budget}
                 onView={onView}
+                onContinue={onContinue}
+                onCloseTransaction={onCloseTransaction}
+                onDeleteTransaction={onDeleteTransaction}
               />
             ))}
           </div>
@@ -80,39 +92,79 @@ export default function DailyBudgetsList({
                   <TableHead className="text-right">Budget</TableHead>
                   <TableHead className="text-right">Spent</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((budget) => (
-                  <TableRow
-                    key={budget.id}
-                    className="cursor-pointer"
-                    onClick={() => onView(budget.id)}
-                  >
-                    <TableCell className="font-semibold">
-                      {budget.name}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {date_formatter(new Date(budget.budget_date))}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm font-semibold">
-                      {currency_formatter(budget.budget_amount)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                      {currency_formatter(budget.total_spent)}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={daily_budget_status_pill_class(
-                          budget.status,
+                {filtered.map((budget) => {
+                  const isInProgress =
+                    daily_budget_display_status(budget) === "in_progress";
+                  return (
+                    <TableRow
+                      key={budget.id}
+                      className={isInProgress ? "" : "cursor-pointer"}
+                      onClick={
+                        isInProgress ? undefined : () => onView(budget.id)
+                      }
+                    >
+                      <TableCell className="font-semibold">
+                        {budget.name}
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {date_formatter(new Date(budget.budget_date))}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm font-semibold">
+                        {currency_formatter(budget.budget_amount)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
+                        {currency_formatter(budget.total_spent)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          className={daily_budget_status_pill_class(
+                            daily_budget_display_status(budget),
+                          )}
+                        >
+                          <span className="size-1.5 rounded-full bg-current" />
+                          {daily_budget_display_status_label(budget)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {isInProgress && (
+                          <div
+                            className="flex justify-end gap-1.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onContinue?.(budget)}
+                            >
+                              Continue
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onCloseTransaction?.(budget)}
+                            >
+                              Close
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => onDeleteTransaction?.(budget)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
                         )}
-                      >
-                        <span className="size-1.5 rounded-full bg-current" />
-                        {budget.status_label}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>

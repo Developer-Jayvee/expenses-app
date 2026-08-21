@@ -3,8 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   cancelBudget_API,
+  continueBudget_API,
   createDailyBudget_API,
   createExpense_API,
+  deleteBudget_API,
   deleteExpense_API,
   getActiveBudget_API,
   getDailyBudget_API,
@@ -123,10 +125,11 @@ export default function useDailyExpensesHook() {
     return success;
   };
 
-  const markDone = async (): Promise<boolean> => {
-    if (!activeBudget) return false;
+  const markDone = async (id?: string | number): Promise<boolean> => {
+    const budgetId = id ?? activeBudget?.id;
+    if (!budgetId) return false;
     let success = false;
-    await markBudgetDone_API(activeBudget.id)
+    await markBudgetDone_API(budgetId)
       .then(async (response) => {
         if (response?.status) {
           setActiveBudget(null);
@@ -167,6 +170,48 @@ export default function useDailyExpensesHook() {
     return success;
   };
 
+  const continueBudget = async (id: string | number): Promise<boolean> => {
+    let success = false;
+    await continueBudget_API(id)
+      .then(async (response) => {
+        if (response?.status) {
+          setActiveBudget(response.data);
+          await fetchList();
+          success = true;
+        } else {
+          showToast({
+            message: response?.message ?? "Failed to continue transaction.",
+            variant: "danger",
+          });
+        }
+      })
+      .catch((err) => {
+        setErrorList(extractRawHttpError(err));
+      });
+    return success;
+  };
+
+  const deleteBudget = async (id: string | number): Promise<boolean> => {
+    let success = false;
+    await deleteBudget_API(id)
+      .then(async (response) => {
+        if (response?.status) {
+          setActiveBudget(null);
+          await fetchList();
+          success = true;
+        } else {
+          showToast({
+            message: response?.message ?? "Failed to delete transaction.",
+            variant: "danger",
+          });
+        }
+      })
+      .catch((err) => {
+        setErrorList(extractRawHttpError(err));
+      });
+    return success;
+  };
+
   return {
     activeBudget,
     budgetList,
@@ -185,5 +230,7 @@ export default function useDailyExpensesHook() {
     deleteExpense,
     markDone,
     cancelBudget,
+    continueBudget,
+    deleteBudget,
   };
 }

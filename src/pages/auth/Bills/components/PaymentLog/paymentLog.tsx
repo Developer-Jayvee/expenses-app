@@ -20,11 +20,13 @@ export default function PaymentLog({
   register,
   setValue,
   details,
+  dateBounds,
 }: {
   control: any;
   register: any;
   setValue: any;
   details: PostBillDataI | null;
+  dateBounds?: { min: string; max: string } | null;
 }) {
   const { id } = useParams();
   const { errors } = useFormState<LogPaymentType>({ control });
@@ -82,6 +84,8 @@ export default function PaymentLog({
                   type: "date",
                   props: {
                     ...register("transaction_date"),
+                    min: dateBounds?.min,
+                    max: dateBounds?.max,
                   },
                 }}
               />

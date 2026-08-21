@@ -8,6 +8,7 @@ import type {
   expenseSchema,
   startBudgetSchema,
 } from "@c/types/dailyExpenseTypes";
+import type { DefaultResponseI } from "@c/types/globalTypes";
 import type z from "zod";
 
 const BASE_URL = "daily-budgets";
@@ -56,6 +57,24 @@ export const cancelBudget_API = async (
     `${BASE_URL}/${id}/cancel`,
   );
   return response as unknown as DailyBudgetResponseI;
+};
+
+export const continueBudget_API = async (
+  id: string | number,
+): Promise<DailyBudgetResponseI> => {
+  const response = await http.patch<DailyBudgetResponseI>(
+    `${BASE_URL}/${id}/continue`,
+  );
+  return response as unknown as DailyBudgetResponseI;
+};
+
+export const deleteBudget_API = async (
+  id: string | number,
+): Promise<DefaultResponseI<null>> => {
+  const response = await http.delete<DefaultResponseI<null>>(
+    `${BASE_URL}/${id}/delete`,
+  );
+  return response as unknown as DefaultResponseI<null>;
 };
 
 export const createExpense_API = async (

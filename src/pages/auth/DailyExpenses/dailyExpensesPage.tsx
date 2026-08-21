@@ -13,7 +13,10 @@ import AddExpenseModal from "./components/AddExpenseModal";
 import ActiveSessionView from "./components/ActiveSessionView";
 import DailyBudgetsList from "./list/dailyBudgetsList";
 import type { DailyBudgetI, DailyExpenseI } from "@c/types/dailyExpenseTypes";
-import { date_formatter } from "@c/utils/utilities.util";
+import {
+  daily_budget_is_same_day_session,
+  date_formatter,
+} from "@c/utils/utilities.util";
 
 const StartTransactionHeader = () => (
   <>
@@ -57,6 +60,8 @@ export default function DailyExpensesPage() {
     deleteExpense,
     markDone,
     cancelBudget,
+    continueBudget,
+    deleteBudget,
   } = useDailyExpensesHook();
   const { configureModal, onOpen } = useModal();
   const {
@@ -141,6 +146,42 @@ export default function DailyExpensesPage() {
     onConfirmOpen();
   };
 
+  const handleContinueTransaction = (budget: DailyBudgetI) => {
+    confirmModalConfig({
+      title: "Continue this transaction?",
+      description:
+        "It will reset and clear all logged expenses and move the transaction date to today. Are you sure you want to continue?",
+    });
+    handleConfirm(() => {
+      continueBudget(budget.id);
+    });
+    onConfirmOpen();
+  };
+
+  const handleCloseTransaction = (budget: DailyBudgetI) => {
+    confirmModalConfig({
+      title: "Close this transaction?",
+      description:
+        "This in-progress transaction will be closed and kept in your history.",
+    });
+    handleConfirm(() => {
+      markDone(budget.id);
+    });
+    onConfirmOpen();
+  };
+
+  const handleDeleteTransaction = (budget: DailyBudgetI) => {
+    confirmModalConfig({
+      title: `Delete "${budget.name}"?`,
+      description:
+        "This transaction and all of its logged expenses will be permanently deleted.",
+    });
+    handleConfirm(() => {
+      deleteBudget(budget.id);
+    });
+    onConfirmOpen();
+  };
+
   const handleViewSession = async (id: string | number) => {
     const budget = await getBudgetDetails(id);
     if (!budget) return;
@@ -162,9 +203,11 @@ export default function DailyExpensesPage() {
             Daily Expenses
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {activeBudget
+            {daily_budget_is_same_day_session(activeBudget)
               ? "Track today's spending in real time."
-              : "Start a transaction to begin tracking today's spending."}
+              : activeBudget
+                ? "You have an in-progress transaction from a previous day. Resolve it below to start a new one."
+                : "Start a transaction to begin tracking today's spending."}
           </p>
         </div>
         {!activeBudget && (
@@ -180,7 +223,7 @@ export default function DailyExpensesPage() {
         )}
       </div>
 
-      {activeBudget ? (
+      {daily_budget_is_same_day_session(activeBudget) ? (
         <ActiveSessionView
           budget={activeBudget}
           onAddExpense={handleAddExpense}
@@ -189,7 +232,13 @@ export default function DailyExpensesPage() {
           onCancel={handleCancel}
         />
       ) : (
-        <DailyBudgetsList budgetList={budgetList} onView={handleViewSession} />
+        <DailyBudgetsList
+          budgetList={budgetList}
+          onView={handleViewSession}
+          onContinue={handleContinueTransaction}
+          onCloseTransaction={handleCloseTransaction}
+          onDeleteTransaction={handleDeleteTransaction}
+        />
       )}
     </div>
   );

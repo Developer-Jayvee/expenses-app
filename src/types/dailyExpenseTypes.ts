@@ -32,6 +32,7 @@ export interface DailyBudgetI {
   budget_amount: number;
   status: DailyBudgetStatusT;
   status_label: string;
+  is_overdue: boolean;
   budget_date: string;
   total_spent: number;
   remaining_budget: number;

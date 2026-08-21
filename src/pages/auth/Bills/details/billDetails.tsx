@@ -36,7 +36,10 @@ import { SuccessAlert } from "@c/components/alerts/SuccessAlert";
 import { ModalContextService } from "@c/context/ModalContext";
 import {
   currency_formatter,
-  get_future_date,
+  date_formatter,
+  get_periods_for_date,
+  get_transaction_date_bounds,
+  period_unit_label,
   today_date,
 } from "@c/utils/utilities.util";
 
@@ -176,6 +179,15 @@ export default function BillDetails() {
   };
   const handleLogPayment = () => {
     const isFullyPaid = details?.status === "completed";
+    const paymentsCount = summary?.payments_count ?? 0;
+    const dateBounds = details
+      ? get_transaction_date_bounds(
+          details.billing_date,
+          paymentsCount,
+          details.frequency,
+          details.end_date,
+        )
+      : null;
     LogClearErrors();
     configureModal?.({
       header: <LogPaymentHeader isFullyPaid={isFullyPaid} />,
@@ -187,6 +199,7 @@ export default function BillDetails() {
           control={LogControl}
           register={LogRegister}
           setValue={LogSetValue}
+          dateBounds={dateBounds}
         />
       ),
       submitEvent: async () => {
@@ -194,16 +207,8 @@ export default function BillDetails() {
         if (!isValid) return false;
         LogClearErrors();
 
-        const paymentsCount = summary?.payments_count ?? 0;
-        const dueDate = details
-          ? get_future_date(
-              details.billing_date,
-              paymentsCount,
-              details.frequency,
-            )
-          : null;
         const transactionDate = LogGetValues("transaction_date");
-        if (dueDate && transactionDate < dueDate) {
+        if (dateBounds && transactionDate < dateBounds.min) {
           LogSetError("transaction_date", {
             type: "validate",
             message:
@@ -213,6 +218,25 @@ export default function BillDetails() {
           });
           return false;
         }
+        if (dateBounds && transactionDate > dateBounds.max) {
+          LogSetError("transaction_date", {
+            type: "validate",
+            message:
+              details && dateBounds.max === details.end_date
+                ? "Transaction date can't be later than the bill's end date."
+                : "Transaction date is too far in the future for this bill.",
+          });
+          return false;
+        }
+
+        const periods = details
+          ? get_periods_for_date(
+              details.billing_date,
+              paymentsCount,
+              details.frequency,
+              transactionDate,
+            )
+          : 1;
 
         const data: ExtendedLogPayment = {
           billsId: String(id),
@@ -220,12 +244,22 @@ export default function BillDetails() {
           payment_mode: LogGetValues("payment_mode"),
           transaction_date: LogGetValues("transaction_date"),
           notes: LogGetValues("notes"),
+          periods,
         };
 
-        confirmModalConfig({
-          title: "Log this payment?",
-          description: `This will record a ${currency_formatter(data.amount)} payment for this bill.`,
-        });
+        const isMultiPeriod = periods > 1;
+        const unitLabel = period_unit_label(details?.frequency ?? "", periods);
+        confirmModalConfig(
+          isMultiPeriod
+            ? {
+                title: `Log ${periods} ${unitLabel}?`,
+                description: `This date is ${periods} ${unitLabel} out — this will record ${periods} separate ${currency_formatter(data.amount)} payments for this bill, one per ${period_unit_label(details?.frequency ?? "", 1)}, through ${date_formatter(new Date(transactionDate))}.`,
+              }
+            : {
+                title: "Log this payment?",
+                description: `This will record a ${currency_formatter(data.amount)} payment for this bill.`,
+              },
+        );
         handleConfirm(() => {
           createTransaction_API(data)
             .then((result) => {

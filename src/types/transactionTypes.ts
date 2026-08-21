@@ -35,6 +35,7 @@ export const logPaymentSchema = z.object({
 export type LogPaymentType = z.infer<typeof logPaymentSchema>;
 export interface ExtendedLogPayment extends LogPaymentType {
   billsId: string;
+  periods?: number;
 }
 
 export interface TransactionsTableI<T = TransactionResourceI[] | null> {
