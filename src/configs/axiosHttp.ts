@@ -1,7 +1,6 @@
 import axios from "axios";
 const base_url = import.meta.env.VITE_BASE_URL_API;
 
-console.log(base_url);
 const http = axios.create({
   baseURL: base_url,
   timeout: 10000,
@@ -10,8 +9,7 @@ const http = axios.create({
   },
   withCredentials: true,
 });
-console.log(http.defaults.baseURL);
-console.log("GET URI:", http.getUri({ url: "login" }));
+
 http.interceptors.request.use(
   (config) => config,
   (error) => Promise.reject(error),

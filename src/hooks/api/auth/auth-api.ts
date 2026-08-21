@@ -48,7 +48,10 @@ export const registerAPI = async ({
 };
 
 export const getCookies = async () => {
-  return await axios.get(`${base_url}/sanctum/csrf-cookie`);
+  const response = await axios.get(`${base_url}/sanctum/csrf-cookie`);
+  console.log(http.defaults.baseURL);
+  console.log("GET URI:", http.getUri({ url: "login" }));
+  return response;
 };
 
 export const authCheck = async () => {
