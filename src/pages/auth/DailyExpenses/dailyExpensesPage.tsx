@@ -1,9 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { useModal } from "@c/context/providers/ModalProvider";
 import { ModalContextService } from "@c/context/ModalContext";
 import { useChecklistContext } from "@c/context/providers/ChecklistProvider";
-import ChecklistExpenseNav from "@c/components/ChecklistExpenseNav";
 import useDailyExpensesHook from "@c/hooks/useDailyExpensesHook";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import AddExpenseModal from "./components/AddExpenseModal";
 import ActiveSessionView from "./components/ActiveSessionView";
 import DailyBudgetsList from "./list/dailyBudgetsList";
 import type {
+  BudgetChecklistI,
   DailyBudgetI,
   DailyExpenseI,
   ExpenseFormT,
@@ -29,7 +29,8 @@ const StartTransactionHeader = () => (
   <>
     <DialogTitle>Start Transaction</DialogTitle>
     <DialogDescription>
-      Set a name and allotted budget for today's spending.
+      Pick a checklist template (optional), then set a name and allotted budget
+      for today's spending.
     </DialogDescription>
   </>
 );
@@ -76,6 +77,8 @@ export default function DailyExpensesPage() {
     getGroupDetails,
   } = useChecklistContext();
   const { configureModal, onOpen } = useModal();
+  const [sessionChecklist, setSessionChecklist] =
+    useState<BudgetChecklistI | null>(null);
   const {
     onOpen: onConfirmOpen,
     confirmModalConfig,
@@ -94,6 +97,7 @@ export default function DailyExpensesPage() {
 
   const handleStartTransaction = () => {
     startBudgetForm.reset();
+    setSessionChecklist(null);
     configureModal?.({
       type: "general",
       showFooter: false,
@@ -104,6 +108,9 @@ export default function DailyExpensesPage() {
           formMethod={startBudgetForm}
           errorList={errorList}
           onSubmit={startBudget}
+          checklistGroups={checklistGroups}
+          onSelectGroup={getGroupDetails}
+          onChecklistChange={setSessionChecklist}
         />
       ),
     });
@@ -146,8 +153,9 @@ export default function DailyExpensesPage() {
       description:
         "You won't be able to log more expenses once it's marked as done.",
     });
-    handleConfirm(() => {
-      markDone();
+    handleConfirm(async () => {
+      const success = await markDone();
+      if (success) setSessionChecklist(null);
     });
     onConfirmOpen();
   };
@@ -157,8 +165,9 @@ export default function DailyExpensesPage() {
       title: "Cancel this transaction?",
       description: "The transaction will be kept in your history as cancelled.",
     });
-    handleConfirm(() => {
-      cancelBudget();
+    handleConfirm(async () => {
+      const success = await cancelBudget();
+      if (success) setSessionChecklist(null);
     });
     onConfirmOpen();
   };
@@ -169,8 +178,9 @@ export default function DailyExpensesPage() {
       description:
         "It will reset and clear all logged expenses and move the transaction date to today. Are you sure you want to continue?",
     });
-    handleConfirm(() => {
-      continueBudget(budget.id);
+    handleConfirm(async () => {
+      const success = await continueBudget(budget.id);
+      if (success) setSessionChecklist(null);
     });
     onConfirmOpen();
   };
@@ -240,8 +250,6 @@ export default function DailyExpensesPage() {
         )}
       </div>
 
-      <ChecklistExpenseNav />
-
       {daily_budget_is_same_day_session(activeBudget) ? (
         <ActiveSessionView
           budget={activeBudget}
@@ -249,8 +257,7 @@ export default function DailyExpensesPage() {
           onDeleteExpense={handleDeleteExpense}
           onDone={handleDone}
           onCancel={handleCancel}
-          checklistGroups={checklistGroups}
-          onSelectGroup={getGroupDetails}
+          checklist={sessionChecklist}
           onUseChecklistItem={handleUseChecklistItem}
         />
       ) : (

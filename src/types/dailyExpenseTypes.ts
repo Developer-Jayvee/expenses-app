@@ -41,6 +41,19 @@ export interface DailyBudgetI {
   expenses?: DailyExpenseI[];
 }
 
+export interface BudgetChecklistItemI {
+  id: string | number;
+  item_name: string;
+  quantity: number;
+  amount: number;
+}
+
+export interface BudgetChecklistI {
+  group_id: string | number;
+  title: string;
+  items: BudgetChecklistItemI[];
+}
+
 export const startBudgetSchema = z.object({
   name: z.string().min(1, "Transaction name is required."),
   budget_amount: z

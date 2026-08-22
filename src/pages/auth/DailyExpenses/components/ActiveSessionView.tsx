@@ -12,8 +12,12 @@ import {
   TableHeader,
   TableRow,
 } from "@c/lib/shadcn/components/ui/table";
-import type { DailyBudgetI, DailyExpenseI } from "@c/types/dailyExpenseTypes";
-import type { ChecklistGroupI, ChecklistItemI } from "@c/types/checklistTypes";
+import type {
+  BudgetChecklistI,
+  BudgetChecklistItemI,
+  DailyBudgetI,
+  DailyExpenseI,
+} from "@c/types/dailyExpenseTypes";
 import { currency_formatter, date_formatter } from "@c/utils/utilities.util";
 
 interface StatCellI {
@@ -40,8 +44,7 @@ interface ActiveSessionViewI {
   onDeleteExpense?: (expense: DailyExpenseI) => void;
   onDone?: () => void;
   onCancel?: () => void;
-  checklistGroups?: ChecklistGroupI[];
-  onSelectGroup?: (id: string | number) => Promise<ChecklistGroupI | null>;
+  checklist?: BudgetChecklistI | null;
   onUseChecklistItem?: (name: string, amount: number) => void;
 }
 
@@ -52,39 +55,26 @@ export default function ActiveSessionView({
   onDeleteExpense,
   onDone,
   onCancel,
-  checklistGroups,
-  onSelectGroup,
+  checklist,
   onUseChecklistItem,
 }: ActiveSessionViewI) {
-  const [selectedGroupId, setSelectedGroupId] = useState<string | number | "">(
-    "",
-  );
-  const [selectedItems, setSelectedItems] = useState<ChecklistItemI[]>([]);
-  const [itemAmounts, setItemAmounts] = useState<Record<string, string>>({});
+  const [amountOverrides, setAmountOverrides] = useState<
+    Record<string, string>
+  >({});
+  const [overriddenGroupId, setOverriddenGroupId] = useState<
+    string | number | null
+  >(null);
+  const checklistItems = checklist?.items ?? [];
+  const checklistGroupId = checklist?.group_id ?? null;
 
-  const handleSelectGroup = async (value: string) => {
-    setSelectedGroupId(value);
-    if (!value || !onSelectGroup) {
-      setSelectedItems([]);
-      setItemAmounts({});
-      return;
-    }
-    try {
-      const group = await onSelectGroup(value);
-      const items = group?.items ?? [];
-      setSelectedItems(items);
-      const amounts: Record<string, string> = {};
-      items.forEach((item) => {
-        amounts[String(item.id)] = String(
-          Number(item.estimated_price ?? 0) * Number(item.quantity ?? 1),
-        );
-      });
-      setItemAmounts(amounts);
-    } catch {
-      setSelectedItems([]);
-      setItemAmounts({});
-    }
-  };
+  // Drop edited amounts when a different checklist backs the session.
+  if (overriddenGroupId !== checklistGroupId) {
+    setOverriddenGroupId(checklistGroupId);
+    setAmountOverrides({});
+  }
+
+  const item_amount = (item: BudgetChecklistItemI) =>
+    amountOverrides[String(item.id)] ?? String(item.amount ?? 0);
 
   const isNegative = Number(budget.remaining_budget) < 0;
   const canCancel =
@@ -137,59 +127,51 @@ export default function ActiveSessionView({
         </div>
       </Card>
 
-      {!readOnly && (checklistGroups ?? []).length > 0 && (
+      {!readOnly && checklistItems.length > 0 && (
         <Card className="gap-3 rounded-2xl p-4">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            Use Checklist
+            From "{checklist?.title}"
           </h3>
-          <select
-            className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring"
-            value={selectedGroupId}
-            onChange={(e) => handleSelectGroup(e.target.value)}
-          >
-            <option value="">Select a checklist…</option>
-            {(checklistGroups ?? []).map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.title}
-              </option>
+          <div className="flex flex-col gap-2">
+            {checklistItems.map((item) => (
+              <div key={item.id} className="flex items-center gap-2">
+                <span className="flex-1 truncate text-sm">
+                  {item.item_name}
+                  {item.quantity > 1 && (
+                    <span className="ml-1.5 font-mono text-xs text-muted-foreground">
+                      ×{item.quantity}
+                    </span>
+                  )}
+                </span>
+                <Input
+                  type="number"
+                  step="0.01"
+                  aria-label={`Amount for ${item.item_name}`}
+                  className="w-28"
+                  value={item_amount(item)}
+                  onChange={(e) =>
+                    setAmountOverrides((prev) => ({
+                      ...prev,
+                      [String(item.id)]: e.target.value,
+                    }))
+                  }
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    onUseChecklistItem?.(
+                      item.item_name,
+                      Number(item_amount(item)),
+                    )
+                  }
+                >
+                  Add
+                </Button>
+              </div>
             ))}
-          </select>
-          {(selectedItems ?? []).length > 0 && (
-            <div className="flex flex-col gap-2">
-              {(selectedItems ?? []).map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
-                  <span className="flex-1 truncate text-sm">
-                    {item.item_name}
-                  </span>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    className="w-28"
-                    value={itemAmounts[String(item.id)] ?? ""}
-                    onChange={(e) =>
-                      setItemAmounts((prev) => ({
-                        ...prev,
-                        [String(item.id)]: e.target.value,
-                      }))
-                    }
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() =>
-                      onUseChecklistItem?.(
-                        item.item_name,
-                        Number(itemAmounts[String(item.id)] ?? 0),
-                      )
-                    }
-                  >
-                    Add
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
         </Card>
       )}
 
