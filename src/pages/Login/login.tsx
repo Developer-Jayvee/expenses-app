@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router";
 import useAuthHook from "@c/hooks/useAuthHook";
 import AuthInputField from "@c/components/AuthInputField";
 import AuthSplitLayout from "@c/components/layouts/AuthSplitLayout";
+import LoadingScreen from "@c/components/LoadingScreen";
 import { DestructiveAlert } from "@c/components/alerts/DestructiveAlert";
 import { Alert, AlertDescription } from "@c/lib/shadcn/components/ui/alert";
 import { Button } from "@c/lib/shadcn/components/ui/button";
@@ -102,12 +103,23 @@ const LoginForm = ({
   );
 };
 export default function LoginPage() {
-  const { register, handleSubmit, onSubmit, errors, errorList, isSubmitting } =
-    useAuthHook();
+  const {
+    register,
+    handleSubmit,
+    onSubmit,
+    errors,
+    errorList,
+    isSubmitting,
+    isRedirecting,
+  } = useAuthHook();
   const location = useLocation();
   const justRegistered = Boolean(
     (location.state as { registered?: boolean } | null)?.registered,
   );
+
+  if (isRedirecting) {
+    return <LoadingScreen message="Signing you in..." />;
+  }
 
   return (
     <AuthSplitLayout>

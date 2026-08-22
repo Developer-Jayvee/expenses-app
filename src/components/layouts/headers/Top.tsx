@@ -17,6 +17,7 @@ import {
   AvatarImage,
 } from "@c/lib/shadcn/components/ui/avatar";
 import useAuthHook from "@c/hooks/useAuthHook";
+import LoadingScreen from "@c/components/LoadingScreen";
 import { ModalContextService } from "@c/context/ModalContext";
 import AuthService from "@c/services/AuthService";
 import { Badge } from "@c/lib/shadcn/components/ui/badge";
@@ -30,7 +31,7 @@ const NAV_LINKS = [
 ];
 
 export default function TopBar() {
-  const { onLogout } = useAuthHook();
+  const { onLogout, isRedirecting } = useAuthHook();
   const { onOpen, confirmModalConfig, handleConfirm } =
     ModalContextService.confirmModal();
   const user = AuthService.getUserData();
@@ -65,6 +66,10 @@ export default function TopBar() {
     .join(" ");
   const initials =
     `${user?.first_name?.[0] ?? ""}${user?.last_name?.[0] ?? ""}`.toUpperCase();
+
+  if (isRedirecting) {
+    return <LoadingScreen message="Signing you out..." />;
+  }
 
   return (
     <>

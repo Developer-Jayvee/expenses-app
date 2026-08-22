@@ -10,6 +10,7 @@ import { extractRawHttpError } from "@c/utils/axios-error.util";
 export default function useAuthHook() {
   const [errorList, setErrorList] = useState<ErrorResponseI>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isRedirecting, setIsRedirecting] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -26,6 +27,7 @@ export default function useAuthHook() {
     try {
       await getCookies();
       await loginAPI({ email, password });
+      setIsRedirecting(true);
       window.location.reload();
     } catch (error) {
       setErrorList(extractRawHttpError(error));
@@ -34,12 +36,14 @@ export default function useAuthHook() {
     }
   };
   const onLogout = async () => {
+    setIsRedirecting(true);
     try {
       await logoutAPI().then(() => {
         window.location.reload();
         AuthService.logoutUser();
       });
     } catch (error) {
+      setIsRedirecting(false);
       console.warn("Error found in: ", error);
     }
   };
@@ -50,6 +54,7 @@ export default function useAuthHook() {
     errors,
     errorList,
     isSubmitting,
+    isRedirecting,
     onLogout,
   };
 }

@@ -5,6 +5,7 @@ import ConfirmModalProvider from "@c/context/providers/ConfirmModalProvider";
 import { ModalProvider } from "@c/context/providers/ModalProvider";
 import { ReferenceContextProvider } from "@c/context/providers/ReferenceProvider";
 import ToastProvider from "@c/context/providers/ToastProvider";
+import LoadingScreen from "@c/components/LoadingScreen";
 import useAuthCheck from "@c/hooks/auth/useAuthCheck";
 import AuthLayout from "@c/pages/auth/layout";
 import { useEffect } from "react";
@@ -18,7 +19,7 @@ export default function Authenticated() {
   }, []);
 
   if (authCheck.isAuthenticated === null) {
-    return null;
+    return <LoadingScreen />;
   }
   if (!authCheck.isAuthenticated) {
     return <Navigate to="/" replace />;
