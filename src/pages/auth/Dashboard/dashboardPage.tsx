@@ -4,9 +4,11 @@ import BillsByCategoryChart from "./components/billsByCategoryChart";
 import UpcomingBillsTable from "./components/upcomingBillsTable";
 import DashboardSkeleton from "./components/dashboardSkeleton";
 import { Button } from "@c/lib/shadcn/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
-  const { summary, isLoading, isError, refresh } = useDashboardHook();
+  const { summary, isLoading, isError, isRefreshing, refresh } =
+    useDashboardHook();
 
   if (isLoading && !summary) {
     return <DashboardSkeleton />;
@@ -18,8 +20,14 @@ export default function DashboardPage() {
         <span className="text-sm font-semibold">
           Couldn&apos;t load the dashboard
         </span>
-        <Button type="button" variant="outline" onClick={() => refresh()}>
-          Try again
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => refresh()}
+          disabled={isRefreshing}
+        >
+          {isRefreshing && <Loader2 size={16} className="animate-spin" />}
+          {isRefreshing ? "Retrying..." : "Try again"}
         </Button>
       </div>
     );
@@ -48,8 +56,10 @@ export default function DashboardPage() {
           variant="outline"
           className="w-full sm:w-auto"
           onClick={() => refresh()}
+          disabled={isRefreshing}
         >
-          Refresh
+          {isRefreshing && <Loader2 size={16} className="animate-spin" />}
+          {isRefreshing ? "Refreshing..." : "Refresh"}
         </Button>
       </div>
 

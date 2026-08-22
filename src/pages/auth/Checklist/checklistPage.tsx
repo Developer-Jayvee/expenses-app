@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BiPlus } from "react-icons/bi";
-import { CiEdit, CiTrash } from "react-icons/ci";
+import { CiTrash } from "react-icons/ci";
+import { Loader2 } from "lucide-react";
 import { useChecklistContext } from "@c/context/providers/ChecklistProvider";
 import { useToast } from "@c/context/providers/ToastProvider";
 import { ModalContextService } from "@c/context/ModalContext";
@@ -36,6 +37,9 @@ export default function ChecklistPage() {
   const [editingGroup, setEditingGroup] = useState<ChecklistGroupI | null>(
     null,
   );
+  const [openingGroupId, setOpeningGroupId] = useState<
+    ChecklistGroupI["id"] | null
+  >(null);
 
   useEffect(() => {
     fetchList();
@@ -48,17 +52,23 @@ export default function ChecklistPage() {
   };
 
   const handleEditGroup = async (group: ChecklistGroupI) => {
-    const fullGroup = await getGroupDetails(group.id);
-    if (!fullGroup) {
-      showToast({
-        message: "Failed to load checklist for editing.",
-        variant: "danger",
-      });
-      return;
+    if (openingGroupId !== null) return;
+    setOpeningGroupId(group.id);
+    try {
+      const fullGroup = await getGroupDetails(group.id);
+      if (!fullGroup) {
+        showToast({
+          message: "Failed to load checklist for editing.",
+          variant: "danger",
+        });
+        return;
+      }
+      groupForm?.reset(mapChecklistGroupToFormValues(fullGroup));
+      setEditingGroup(fullGroup);
+      setMode("edit");
+    } finally {
+      setOpeningGroupId(null);
     }
-    groupForm?.reset(mapChecklistGroupToFormValues(fullGroup));
-    setEditingGroup(fullGroup);
-    setMode("edit");
   };
 
   const handleCancelForm = () => {
@@ -147,23 +157,31 @@ export default function ChecklistPage() {
               {(groupList ?? []).map((group) => {
                 const isActive =
                   mode === "edit" && editingGroup?.id === group.id;
+                const isOpening = openingGroupId === group.id;
                 return (
                   <Card
                     key={group.id}
-                    className={`gap-1.5 rounded-2xl p-3.5 transition-colors ${
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Open ${group.title}`}
+                    aria-busy={isOpening}
+                    onClick={() => handleEditGroup(group)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleEditGroup(group);
+                      }
+                    }}
+                    className={`cursor-pointer gap-1.5 rounded-2xl p-3.5 text-left transition-colors focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:outline-none ${
                       isActive
                         ? "ring-2 ring-primary/40"
                         : "hover:border-foreground/20"
-                    }`}
+                    } ${isOpening ? "opacity-70" : ""}`}
                   >
                     <div className="flex items-baseline gap-2">
-                      <button
-                        type="button"
-                        className="min-w-0 flex-1 truncate text-left text-sm font-bold tracking-tight hover:underline"
-                        onClick={() => handleEditGroup(group)}
-                      >
+                      <span className="min-w-0 flex-1 truncate text-sm font-bold tracking-tight">
                         {group.title}
-                      </button>
+                      </span>
                       <span className="font-mono text-xs whitespace-nowrap text-muted-foreground">
                         {group.items_count ?? 0} item(s)
                       </span>
@@ -172,21 +190,21 @@ export default function ChecklistPage() {
                       {group.description || "No description"}
                     </p>
                     <div className="mt-1 flex items-center justify-end gap-1">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon-sm"
-                        title="View / edit checklist"
-                        onClick={() => handleEditGroup(group)}
-                      >
-                        <CiEdit size={16} />
-                      </Button>
+                      {isOpening && (
+                        <Loader2
+                          size={14}
+                          className="mr-auto animate-spin text-muted-foreground"
+                        />
+                      )}
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon-sm"
                         title="Delete checklist"
-                        onClick={() => handleDeleteGroup(group)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteGroup(group);
+                        }}
                       >
                         <CiTrash size={16} />
                       </Button>
@@ -213,6 +231,16 @@ export default function ChecklistPage() {
                 }
                 submitLabel={
                   mode === "edit" ? "Save Changes" : "Submit Checklist"
+                }
+                confirmTitle={
+                  mode === "edit"
+                    ? "Save changes to this checklist?"
+                    : "Create this checklist?"
+                }
+                confirmDescription={
+                  mode === "edit"
+                    ? "The checklist and its items will be updated with your changes."
+                    : "The checklist and its items will be saved to your lists."
                 }
                 errorList={errorList}
                 onCancel={handleCancelForm}

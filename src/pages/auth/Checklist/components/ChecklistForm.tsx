@@ -8,6 +8,8 @@ import {
 } from "react-hook-form";
 import { CiTrash } from "react-icons/ci";
 import { BiPlus } from "react-icons/bi";
+import { Loader2 } from "lucide-react";
+import { ModalContextService } from "@c/context/ModalContext";
 import { Button } from "@c/lib/shadcn/components/ui/button";
 import { Card } from "@c/lib/shadcn/components/ui/card";
 import { Field, FieldLabel } from "@c/lib/shadcn/components/ui/field";
@@ -34,6 +36,8 @@ interface ChecklistFormI {
   remove: UseFieldArrayRemove;
   onSubmit: (data: ChecklistGroupFormT) => Promise<boolean>;
   submitLabel?: string;
+  confirmTitle?: string;
+  confirmDescription?: string;
   errorList: ErrorResponseI;
   onCancel: () => void;
   onSuccess: () => void;
@@ -46,12 +50,17 @@ export default function ChecklistForm({
   remove,
   onSubmit,
   submitLabel = "Submit Checklist",
+  confirmTitle = "Save this checklist?",
+  confirmDescription = "The checklist and its items will be saved.",
   errorList,
   onCancel,
   onSuccess,
 }: ChecklistFormI) {
   const { register, handleSubmit } = groupForm;
+  const { onOpen, confirmModalConfig, handleConfirm } =
+    ModalContextService.confirmModal();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [itemName, setItemName] = useState("");
   const [itemPrice, setItemPrice] = useState("");
   const [itemQty, setItemQty] = useState("1");
@@ -95,6 +104,24 @@ export default function ChecklistForm({
     }
   };
 
+  const handleRequestSubmit = handleSubmit((data) => {
+    confirmModalConfig({
+      title: confirmTitle,
+      description: confirmDescription,
+    });
+    handleConfirm(async () => {
+      setIsSubmitting(true);
+      let success: boolean;
+      try {
+        success = await onSubmit(data);
+      } finally {
+        setIsSubmitting(false);
+      }
+      if (success) onSuccess();
+    });
+    onOpen();
+  });
+
   const estimatedTotal = (fields ?? []).reduce(
     (sum, field) =>
       sum + Number(field.estimated_price ?? 0) * Number(field.quantity ?? 0),
@@ -104,10 +131,7 @@ export default function ChecklistForm({
   return (
     <FormProvider {...groupForm}>
       <form
-        onSubmit={handleSubmit(async (data) => {
-          const success = await onSubmit(data);
-          if (success) onSuccess();
-        })}
+        onSubmit={handleRequestSubmit}
         className="overflow-hidden rounded-2xl bg-card ring-1 ring-foreground/10"
       >
         <div className="flex flex-wrap gap-4 border-b p-4 sm:p-5">
@@ -143,15 +167,21 @@ export default function ChecklistForm({
             </div>
           </div>
           <div className="flex-1" />
-          <Button type="button" variant="outline" onClick={onCancel}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onCancel}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
           <Button
             type="submit"
             variant="primary"
-            disabled={(fields ?? []).length === 0}
+            disabled={(fields ?? []).length === 0 || isSubmitting}
           >
-            {submitLabel}
+            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+            {isSubmitting ? "Saving..." : submitLabel}
           </Button>
         </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   dashboardSummary_API,
   normalizeDashboardSummary,
@@ -8,6 +8,7 @@ import { LocalStorageClass } from "@c/utils/localStorage.util";
 
 const CACHE_KEY = "dashboard_summary";
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+const REFRESH_COOLDOWN_MS = 1000;
 
 interface CachedDashboardI {
   data: DashboardSummaryI;
@@ -32,6 +33,9 @@ export default function useDashboardHook() {
   const [summary, setSummary] = useState<DashboardSummaryI | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isError, setIsError] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const isFetchingRef = useRef<boolean>(false);
+  const lastRefreshAtRef = useRef<number>(0);
 
   const fetchSummary = async (force = false) => {
     if (!force) {
@@ -62,10 +66,26 @@ export default function useDashboardHook() {
     fetchSummary();
   }, []);
 
+  const refresh = async () => {
+    if (isFetchingRef.current) return;
+    if (Date.now() - lastRefreshAtRef.current < REFRESH_COOLDOWN_MS) return;
+
+    isFetchingRef.current = true;
+    setIsRefreshing(true);
+    try {
+      await fetchSummary(true);
+      lastRefreshAtRef.current = Date.now();
+    } finally {
+      isFetchingRef.current = false;
+      setIsRefreshing(false);
+    }
+  };
+
   return {
     summary,
     isLoading,
     isError,
-    refresh: () => fetchSummary(true),
+    isRefreshing,
+    refresh,
   };
 }
